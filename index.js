@@ -51,7 +51,7 @@ app.get('/', (req, res)=>{
 	res.json(dados)
 });
 
-app.put('/input/', (req, res)=>{
+app.put('/input/', async (req, res)=>{
 	
 	switch(req.body.express){
 	
@@ -86,29 +86,44 @@ app.put('/input/', (req, res)=>{
 			break
 
 		case 'feito':
+			
+			var UPDATE_fild;
+			var UPDATE_$;
 
-			dados.forEach((iten,index)=>{
+			try{
+				await mongoose.connection.db.collection('pedidos').findOne({Idtmp:req.body.key})
+					.then(res =>{
+						
+						UPDATE_fild = res['Itens']
+						UPDATE_$ = res['Itens']
+						UPDATE_fild[req.body.id]['Item']['Status']='Feito'
 
-			for(chav in dados[index]){
+						const OPERATION = {$set:{Itens:UPDATE_fild}}
+						const FILTER = {Idtmp:req.body.key}
+						mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+						while(UPDATE_fild.legth){UPDATE_fild.pop()};
+						
+						var cont=0
 
-				if(chav === req.body.key){
-					
-					dados[index][req.body.key]['Itens'][req.body.id]['Item']['Status'] = 'Feito'
-					
-					var cont=0
-					for (i=0; i<dados[index][req.body.key]['Itens'].length; i++ ){
-						if(dados[index][req.body.key]['Itens'][i]['Item']['Status'] == 'Feito'){
-							cont++
+						for (i=0; i<UPDATE_$.length; i++ ){
+							
+							if(UPDATE_$[i]['Item']['Status'] == 'Feito'){
+								cont++
+							}
 						}
-					}
+												
+						if (cont == UPDATE_$.length){
+							const operation = {$set:{Status:"Finalizado"}}
+							const filter = {Idtmp:req.body.key}
+							mongoose.connection.db.collection('pedidos').updateOne(filter, operation)
 
-					if (cont == dados[index][req.body.key]['Itens'].length){
-						dados[index][req.body.key]['Status'] = 'Finalizado'
-					}
-					res.send(dados[index])
-					}
-				}
-			});
+						}
+	
+					}).catch(err=>console.log(err))
+					res.send('Ok')
+			}catch{err=>{
+				console.log('Pedido nao encontrado', erro)
+			}}
 
 			break
 
@@ -131,10 +146,6 @@ function calcularValorTotal(args){
 app.post('/inserir',(req, res)=>{
 
 	switch(req.body.express){
-
-		case 'addbanco':
-			res.send('Gravado com sucesso no Banco de dados')
-			break
 
 		case 'newrequest':
 			var cha;
@@ -164,20 +175,22 @@ app.post('/inserir',(req, res)=>{
 			
 			var KEY_FILTER;
 			async function gravar(){
-				await mongoose.connection.db.collection('pedidos_diario').insertOne(dados[0][chav])
+				await mongoose.connection.db.collection('pedidos').insertOne(dados[0][chav])
 				
 				while(dados.length){
 					dados.pop();
 				}				
-				await mongoose.connection.db.collection('pedidos_diario').findOne({Idtmp:`${keyreturn}`})
+				await mongoose.connection.db.collection('pedidos').findOne({Idtmp:`${keyreturn}`})
 					.then(res =>{
 						KEY_FILTER = res['_id'];
 					}
 				)
-				const OPERATION = {$unset:{Idtmp:""}}
+				//const OPERATION = {$unset:{Idtmp:""}}
+		
+				const OPERATION = {$set:{Idtmp:`${KEY_FILTER.toString()}`}}
 				const FILTER = {_id:KEY_FILTER}
-				await mongoose.connection.db.collection('pedidos_diario').updateOne(FILTER, OPERATION)
-				.then(res=>console.log('Campo removido com sucesso'))
+				await mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+				.then(res=>console.log('Pedido enviado com sucesso'))
 
 			}
 			gravar()
