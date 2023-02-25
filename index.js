@@ -14,10 +14,6 @@ connect.on('connected', async ()=>{
 		console.log('Conectando ao Servidor!')
 	
 		//const schemas = await mongoose.connection.db.listCollections().toArray();
-		//await mongoose.connection.db.collection('pedidos_diario').insertOne({codigo:10, descricao:"tv"})
-		//await mongoose.connection.db.collection('pedidos_diario').deleteOne({codigo:10, descricao:"tv"})
-	
-
 		//schemas.forEach(schma=>console.log(schma.name))
 
 		//mongoose.connection.close();
@@ -56,30 +52,32 @@ app.put('/input/', async (req, res)=>{
 	switch(req.body.express){
 	
 		case 'addnew':
-	
-			dados.forEach((iten,index)=>{
 
-			for(chav in dados[index]){
-				if(chav === req.body.key){
-					var valor = {"Item":""}
-					valor['Item'] = req.body.Item
-					dados[index][req.body.key]['Itens'].push(valor)
-					dados[index][req.body.key]['valor_total'] = calcularValorTotal(dados[index][req.body.key]['Itens'])
+				var UPDATE_fild;
 
-					if(dados[index][req.body.key]['Status'] == 'Pendente'){
-						//
-					}else{
-						if(dados[index][req.body.key]['Status'] == 'Finalizado'){
-							dados[index][req.body.key]['Status'] = 'Pendente'
+				await mongoose.connection.db.collection('pedidos').findOne({Idtmp:req.body.key})
+					.then(res =>{
+						
+						UPDATE_fild = res['Itens']
+						var valor = {"Item":""}
+						valor['Item'] = req.body.Item
+						UPDATE_fild.push(valor)
+
+						const OPERATION = {$set:{Itens:UPDATE_fild}}
+						const FILTER = {Idtmp:req.body.key}
+						mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+						while(UPDATE_fild.legth){UPDATE_fild.pop()};
+						
+						if(res['Status'] == 'Finalizado'){
+								mongoose.connection.db.collection('pedidos').updateOne({Idtmp:req.body.key},{$set:{Status:'Pendente'}})
 						}
 
-					}
+						var NEWVALUE = calcularValorTotal(UPDATE_fild)
+						mongoose.connection.db.collection('pedidos').updateOne({Idtmp:req.body.key},{$set:{valor_total:NEWVALUE}})
 
-
-					res.send(dados[index][req.body.key])
-					}
-				}
-			});
+					});
+			res.send(UPDATE_fild)
+				
 			break
 
 		case 'pagar':
@@ -139,7 +137,7 @@ function calcularValorTotal(args){
 	for (iten in args){
 		soma = soma + args[iten]['Item']['valor']
 	};
-	return soma;
+	return soma.toFixed(2);
 }
 
 
