@@ -12,10 +12,6 @@ connect.on('connected', async ()=>{
 	try{
 
 		console.log('Conectando ao Servidor!')
-	
-		//const schemas = await mongoose.connection.db.listCollections().toArray();
-		//schemas.forEach(schma=>console.log(schma.name))
-
 		//mongoose.connection.close();
 	}catch(err){
 		console.log(err)
@@ -37,14 +33,38 @@ var segundo = String(date.getSeconds());
 
 app.use(express.json());
 
-const dados = []
-
 app.listen(8080, ()=>{
 	console.log('Servidor iniciado na porta 8080')
 });
 
-app.get('/', (req, res)=>{
-	res.json(dados)
+app.get('/', async(req, res)=>{
+
+	try{
+
+		const schemas = await mongoose.connection.db.collection('pedidos').find().toArray();
+		var cont = false
+		var view =[]
+		for(iten in schemas){
+			if(schemas[iten]['Status'] === 'Pendente'){
+				view.push(schemas[iten])
+			}
+			if(view.length === 1){
+				cont = true;
+			}
+		}
+		console.log(view.length)
+		console.log(cont)
+		if(cont){
+			res.send(view)
+			cont = false
+		}else{
+			res.send('AGUARDNANDO NOVOS PEDIDOS')
+		}
+
+
+	}catch(err){
+		console.log('Server error', err)
+	}
 });
 
 app.put('/input/', async (req, res)=>{
@@ -53,29 +73,37 @@ app.put('/input/', async (req, res)=>{
 	
 		case 'addnew':
 
+			try{
+
 				var UPDATE_fild;
 
-				await mongoose.connection.db.collection('pedidos').findOne({Idtmp:req.body.key})
+				await mongoose.connection.db.collection('pedidos').findOne({Id:req.body.key})
 					.then(res =>{
-						
+					
 						UPDATE_fild = res['Itens']
-						var valor = {"Item":""}
-						valor['Item'] = req.body.Item
-						UPDATE_fild.push(valor)
+			
+						for(var i=0; i<req.body.Itens.length; i++){
+							UPDATE_fild.push(req.body.Itens[i])
+						}
 
 						const OPERATION = {$set:{Itens:UPDATE_fild}}
-						const FILTER = {Idtmp:req.body.key}
+						const FILTER = {Id:req.body.key}
 						mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+						
+						var NEWVALUE = calcularValorTotal(UPDATE_fild)
+						//console.log(NEWVALUE)
+						mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{valor_total:NEWVALUE}})
+
 						while(UPDATE_fild.legth){UPDATE_fild.pop()};
 						
 						if(res['Status'] == 'Finalizado'){
-								mongoose.connection.db.collection('pedidos').updateOne({Idtmp:req.body.key},{$set:{Status:'Pendente'}})
+								mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{Status:'Pendente'}})
 						}
 
-						var NEWVALUE = calcularValorTotal(UPDATE_fild)
-						mongoose.connection.db.collection('pedidos').updateOne({Idtmp:req.body.key},{$set:{valor_total:NEWVALUE}})
-
 					});
+			}catch(err){
+				res.send('PEDIDO NAO PODE SER PROCESSADO',erro)
+			}
 			res.send(UPDATE_fild)
 				
 			break
@@ -89,20 +117,16 @@ app.put('/input/', async (req, res)=>{
 			var UPDATE_$;
 
 			try{
-				await mongoose.connection.db.collection('pedidos').findOne({Idtmp:req.body.key})
+				await mongoose.connection.db.collection('pedidos').findOne({Id:req.body.key})
 					.then(res =>{
-						
 						UPDATE_fild = res['Itens']
 						UPDATE_$ = res['Itens']
 						UPDATE_fild[req.body.id]['Item']['Status']='Feito'
-
 						const OPERATION = {$set:{Itens:UPDATE_fild}}
-						const FILTER = {Idtmp:req.body.key}
+						const FILTER = {Id:req.body.key}
 						mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
 						while(UPDATE_fild.legth){UPDATE_fild.pop()};
-						
 						var cont=0
-
 						for (i=0; i<UPDATE_$.length; i++ ){
 							
 							if(UPDATE_$[i]['Item']['Status'] == 'Feito'){
@@ -112,15 +136,14 @@ app.put('/input/', async (req, res)=>{
 												
 						if (cont == UPDATE_$.length){
 							const operation = {$set:{Status:"Finalizado"}}
-							const filter = {Idtmp:req.body.key}
+							const filter = {Id:req.body.key}
 							mongoose.connection.db.collection('pedidos').updateOne(filter, operation)
-
 						}
-	
-					}).catch(err=>console.log(err))
-					res.send('Ok')
+					})
+				res.send('OK FEITO')
+
 			}catch{err=>{
-				console.log('Pedido nao encontrado', erro)
+				console.log('Pedido nao encontrado', err)
 			}}
 
 			break
@@ -133,19 +156,21 @@ app.put('/input/', async (req, res)=>{
 
 function calcularValorTotal(args){
 
-	var soma=0;		
+	var soma=0;
 	for (iten in args){
 		soma = soma + args[iten]['Item']['valor']
 	};
 	return soma.toFixed(2);
 }
 
-
 app.post('/inserir',(req, res)=>{
 
 	switch(req.body.express){
 
 		case 'newrequest':
+
+			const dados = []
+			
 			var cha;
 			Object.keys(req.body).forEach((iten, index)=>{
 				if(iten == 'express'){
@@ -165,34 +190,40 @@ app.post('/inserir',(req, res)=>{
 						dados[index][chav]['valor_total'] = calcularValorTotal(dados[index][chav]['Itens']);
 						dados[index][chav]['Data'] = date.toLocaleDateString();
 						dados[index][chav]['Hora'] = `${hora}:${minuto}:${segundo}`
-						dados[index][chav]['Idtmp'] = keyreturn						
+						dados[index][chav]['Id'] = keyreturn
 					}
 				}
 
 			})
-			
+
+
 			var KEY_FILTER;
+			var NPEDIDO;
 			async function gravar(){
+
 				await mongoose.connection.db.collection('pedidos').insertOne(dados[0][chav])
 				
 				while(dados.length){
 					dados.pop();
 				}				
-				await mongoose.connection.db.collection('pedidos').findOne({Idtmp:`${keyreturn}`})
+				await mongoose.connection.db.collection('pedidos').findOne({Id:`${keyreturn}`})
 					.then(res =>{
 						KEY_FILTER = res['_id'];
 					}
 				)
-				//const OPERATION = {$unset:{Idtmp:""}}
-		
-				const OPERATION = {$set:{Idtmp:`${KEY_FILTER.toString()}`}}
+
+				r = await mongoose.connection.db.collection('numero_pedido').find().toArray();
+				NPEDIDO = r[0]['Nu_pedido']+1
+				await mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:r[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
+				await mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
+
+				const OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
 				const FILTER = {_id:KEY_FILTER}
 				await mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
 				.then(res=>console.log('Pedido enviado com sucesso'))
 
 			}
 			gravar()
-
 			break
 	}
 	
