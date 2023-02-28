@@ -41,8 +41,8 @@ app.get('/', async(req, res)=>{
 
 	try{
 
-		const schemas = await mongoose.connection.db.collection('Estoque').find().toArray();
-
+		const schemas = await mongoose.connection.db.collection('pedidos').find().toArray();
+		
 		var cont = false
 		var view =[]
 		for(iten in schemas){
@@ -52,6 +52,7 @@ app.get('/', async(req, res)=>{
 			if(view.length === 1){
 				cont = true;
 			}
+
 		}
 
 		if(cont){
@@ -74,38 +75,47 @@ app.put('/input/', async (req, res)=>{
 		case 'addnew':
 
 			try{
+				CalculoStoque(req.body.Itens)
+					.then((ress)=>{
+						console.log('valor retornado foi', ress)
+						if(ress === true){
+							AlteraStoque(req.body.Itens)
 
-				var UPDATE_fild;
 
-				await mongoose.connection.db.collection('pedidos').findOne({Id:req.body.key})
-					.then(res =>{
+							var UPDATE_fild;
+
+							mongoose.connection.db.collection('pedidos').findOne({Id:req.body.key})
+								.then(res =>{
 					
-						UPDATE_fild = res['Itens']
+							UPDATE_fild = res['Itens']
 			
-						for(var i=0; i<req.body.Itens.length; i++){
-							UPDATE_fild.push(req.body.Itens[i])
-						}
+							for(var i=0; i<req.body.Itens.length; i++){
+								UPDATE_fild.push(req.body.Itens[i])
+							}
 
-						const OPERATION = {$set:{Itens:UPDATE_fild}}
-						const FILTER = {Id:req.body.key}
-						mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+							const OPERATION = {$set:{Itens:UPDATE_fild}}
+							const FILTER = {Id:req.body.key}
+							mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
 						
-						var NEWVALUE = calcularValorTotal(UPDATE_fild)
-						//console.log(NEWVALUE)
-						mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{valor_total:NEWVALUE}})
+							var NEWVALUE = calcularValorTotal(UPDATE_fild)
+							mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{valor_total:NEWVALUE}})
 
-						while(UPDATE_fild.legth){UPDATE_fild.pop()};
+							while(UPDATE_fild.legth){UPDATE_fild.pop()};
 						
-						if(res['Status'] == 'Finalizado'){
+							if(res['Status'] == 'Finalizado'){
 								mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{Status:'Pendente'}})
+							}
+	
+							});
 						}
+					})
+					
+				res.send('PEDIDO ADICIONADO')
 
-					});
 			}catch(err){
 				res.send('PEDIDO NAO PODE SER PROCESSADO',erro)
 			}
-			res.send(UPDATE_fild)
-				
+			
 			break
 
 		case 'pagar':
@@ -164,22 +174,25 @@ function calcularValorTotal(args){
 }
 
 
-async function ResultEstoque(key,Key){
+async function ResultEstoque(key,valor){
 	
-	const RESULT = await mongoose.connection.db.collection('Estoque').find().toArray();
+	try{
+		const RESULT = await mongoose.connection.db.collection('Estoque').find().toArray();
 	
-	for(index in RESULT){
-		if(key in RESULT[index]){
+		for(index in RESULT){
+			if(key in RESULT[index]){
 	
-			re = await mongoose.connection.db.collection('Estoque').findOne({Id:RESULT[index]['Id']})
-			if(re[key] >= Key === true){
-				return {"tipo":key, "quantidade":true}
-			}else{
-				return {"tipo":key, "quantidade":false}
-			}
-
-
+				re = await mongoose.connection.db.collection('Estoque').findOne({Id:RESULT[index]['Id']})
+				if(re[key] >= valor === true){
+					return {"tipo":key, "quantidade":true}
+				}else{
+					return {"tipo":key, "quantidade":false}
+				}
+			}		
 		}
+
+	}catch(err){
+		return ('Erro ao processar verificacao de estoque', err)
 	}
 }
 
@@ -261,20 +274,50 @@ async function CalculoStoque(args){
 					break
 		}
 	}
+
 	var cont = true
 	var returnFalse = []
+
 	for(ind in DICE_$){
 		if(DICE_$[ind]['quantidade'] === false ){
 			returnFalse.push(DICE_$[ind])
 			cont = false
+			while(DICE_$.length){DICE_$.pop()}
+
 		}
 	}
+	console.log(DICE_$.length)
 	if(cont === false){
 		return returnFalse
+		while(returnFalse.length){returnFalse.pop()}
+
 	}else{
 		return true
 	}
 
+}
+
+
+async function AlteraStoque(args){
+	
+	for(index in args){
+		key = args[index]['Item']['tipo']
+		Key = args[index]['Item']['quantidade']
+		
+		const RESUL = await mongoose.connection.db.collection('Estoque').find().toArray();
+	
+		for(index in RESUL){
+			if(key in RESUL[index]){
+	
+				re = await mongoose.connection.db.collection('Estoque').findOne({Id:RESUL[index]['Id']})
+				if(re[key] >= Key === true){
+					var NEWVALOR = re[key] - Key
+					await mongoose.connection.db.collection('Estoque').updateOne({Id:RESUL[index]['Id']},{$set:{[key]:NEWVALOR}})
+				}
+			}		
+		}
+	
+	}
 }
 
 app.post('/inserir',async (req, res)=>{
@@ -320,6 +363,7 @@ app.post('/inserir',async (req, res)=>{
 								var KEY_FILTER;
 								var NPEDIDO;
 								async function gravar(){
+									AlteraStoque(req.body[iten]['Itens'])
 
 									await mongoose.connection.db.collection('pedidos').insertOne(dados[0][chav])
 				
@@ -344,6 +388,7 @@ app.post('/inserir',async (req, res)=>{
 
 								}
 							gravar()
+								res.send('PEDIDO ENVIADO')
 							}else{
 								res.send('FALHA AO PRECESSAR PEDIDO')
 							}
