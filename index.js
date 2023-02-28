@@ -41,7 +41,8 @@ app.get('/', async(req, res)=>{
 
 	try{
 
-		const schemas = await mongoose.connection.db.collection('pedidos').find().toArray();
+		const schemas = await mongoose.connection.db.collection('Estoque').find().toArray();
+
 		var cont = false
 		var view =[]
 		for(iten in schemas){
@@ -52,8 +53,7 @@ app.get('/', async(req, res)=>{
 				cont = true;
 			}
 		}
-		console.log(view.length)
-		console.log(cont)
+
 		if(cont){
 			res.send(view)
 			cont = false
@@ -163,69 +163,197 @@ function calcularValorTotal(args){
 	return soma.toFixed(2);
 }
 
-app.post('/inserir',(req, res)=>{
+
+async function ResultEstoque(key,Key){
+	
+	const RESULT = await mongoose.connection.db.collection('Estoque').find().toArray();
+	
+	for(index in RESULT){
+		if(key in RESULT[index]){
+	
+			re = await mongoose.connection.db.collection('Estoque').findOne({Id:RESULT[index]['Id']})
+			if(re[key] >= Key === true){
+				return {"tipo":key, "quantidade":true}
+			}else{
+				return {"tipo":key, "quantidade":false}
+			}
+
+
+		}
+	}
+}
+
+async function CalculoStoque(args){
+	
+	DICE_$ = []
+	for(index in args){
+			
+			key = args[index]['Item']['tipo']
+			Key = args[index]['Item']['quantidade']
+
+			switch(key){
+
+				case 'Carne':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+	
+				case 'Carne-sol':	
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Queijo':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Frango':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Presunto':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Bacon':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Cheddar':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Catupiry':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Calabresa':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Salsicha':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Chocolate':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Goiabada':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Banana':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Canela':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Palmito':						
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				case 'Azeitona':
+					DICE_$.push(await ResultEstoque(key, Key))
+					break
+
+				default:
+					break
+		}
+	}
+	var cont = true
+	var returnFalse = []
+	for(ind in DICE_$){
+		if(DICE_$[ind]['quantidade'] === false ){
+			returnFalse.push(DICE_$[ind])
+			cont = false
+		}
+	}
+	if(cont === false){
+		return returnFalse
+	}else{
+		return true
+	}
+
+}
+
+app.post('/inserir',async (req, res)=>{
 
 	switch(req.body.express){
 
 		case 'newrequest':
-
-			const dados = []
 			
+			const dados = []
 			var cha;
 			Object.keys(req.body).forEach((iten, index)=>{
+				
 				if(iten == 'express'){
 					//
 				}else{
 					cha = iten
 					dados.push({[iten]:req.body[iten]})
-					res.send('Pedido adicionado com sucesso')
 				}
 			})
+
+			Object.keys(req.body).forEach((iten, index)=>{
+
+				if(iten === iten && iten != 'express'){
+					CalculoStoque(req.body[iten]['Itens'])
+						.then((ress)=>{
+
+							if(ress == true){
+								var keyreturn = 'Y'+String(Math.random()).slice(2,9);
 			
-			var keyreturn = 'Y'+String(Math.random()).slice(2,9);
-			
-			dados.forEach((iten, index)=>{
-				for(chav in dados[index]){
-					if(chav == cha){
-						dados[index][chav]['valor_total'] = calcularValorTotal(dados[index][chav]['Itens']);
-						dados[index][chav]['Data'] = date.toLocaleDateString();
-						dados[index][chav]['Hora'] = `${hora}:${minuto}:${segundo}`
-						dados[index][chav]['Id'] = keyreturn
-					}
-				}
+								dados.forEach((iten, index)=>{
+									for(chav in dados[index]){
+										if(chav == cha){
+											dados[index][chav]['valor_total'] = calcularValorTotal(dados[index][chav]['Itens']);
+											dados[index][chav]['Data'] = date.toLocaleDateString();
+											dados[index][chav]['Hora'] = `${hora}:${minuto}:${segundo}`
+											dados[index][chav]['Id'] = keyreturn
+										}	
+									}
 
-			})
+								})
 
 
-			var KEY_FILTER;
-			var NPEDIDO;
-			async function gravar(){
+								var KEY_FILTER;
+								var NPEDIDO;
+								async function gravar(){
 
-				await mongoose.connection.db.collection('pedidos').insertOne(dados[0][chav])
+									await mongoose.connection.db.collection('pedidos').insertOne(dados[0][chav])
 				
-				while(dados.length){
-					dados.pop();
-				}				
-				await mongoose.connection.db.collection('pedidos').findOne({Id:`${keyreturn}`})
-					.then(res =>{
-						KEY_FILTER = res['_id'];
+									while(dados.length){
+										dados.pop();
+										}				
+									await mongoose.connection.db.collection('pedidos').findOne({Id:`${keyreturn}`})
+									.then(res =>{
+										KEY_FILTER = res['_id'];
+										}
+									)
+
+									r = await mongoose.connection.db.collection('numero_pedido').find().toArray();
+									NPEDIDO = r[0]['Nu_pedido']+1
+									await mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:r[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
+									await mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
+
+									const OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
+									const FILTER = {_id:KEY_FILTER}
+									await mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+									.then(res=>console.log('Pedido enviado com sucesso'))
+
+								}
+							gravar()
+							}else{
+								res.send('FALHA AO PRECESSAR PEDIDO')
+							}
+						})
 					}
-				)
+			});
+			break
 
-				r = await mongoose.connection.db.collection('numero_pedido').find().toArray();
-				NPEDIDO = r[0]['Nu_pedido']+1
-				await mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:r[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
-				await mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
-
-				const OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
-				const FILTER = {_id:KEY_FILTER}
-				await mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
-				.then(res=>console.log('Pedido enviado com sucesso'))
-
-			}
-			gravar()
+		default:
 			break
 	}
 	
 });
-
