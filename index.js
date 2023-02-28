@@ -200,81 +200,82 @@ async function CalculoStoque(args){
 	
 	DICE_$ = []
 	for(index in args){
-			
-			key = args[index]['Item']['tipo']
+
 			Key = args[index]['Item']['quantidade']
-
-			switch(key){
-
-				case 'Carne':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+			var looP = args[index]['Item']['tipo']
+			for(item in looP){
 	
-				case 'Carne-sol':	
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+				switch(looP[item]){
 
-				case 'Queijo':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Carne':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
+	
+					case 'Carne-sol':	
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Frango':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Queijo':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Presunto':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Frango':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Bacon':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Presunto':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Cheddar':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Bacon':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Catupiry':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Cheddar':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Calabresa':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Catupiry':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Salsicha':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Calabresa':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Chocolate':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Salsicha':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Goiabada':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Chocolate':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Banana':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Goiabada':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Canela':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Banana':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Palmito':						
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Canela':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				case 'Azeitona':
-					DICE_$.push(await ResultEstoque(key, Key))
-					break
+					case 'Palmito':						
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
 
-				default:
-					break
+					case 'Azeitona':
+						DICE_$.push(await ResultEstoque(looP[item], Key))
+						break
+
+					default:
+						break
+			}
 		}
 	}
-
 	var cont = true
 	var returnFalse = []
 
@@ -282,13 +283,12 @@ async function CalculoStoque(args){
 		if(DICE_$[ind]['quantidade'] === false ){
 			returnFalse.push(DICE_$[ind])
 			cont = false
-			while(DICE_$.length){DICE_$.pop()}
-
 		}
 	}
-	console.log(DICE_$.length)
+
 	if(cont === false){
 		return returnFalse
+		while(DICE_$.length){DICE_$.pop()}
 		while(returnFalse.length){returnFalse.pop()}
 
 	}else{
@@ -300,25 +300,29 @@ async function CalculoStoque(args){
 
 async function AlteraStoque(args){
 	
+	const RESUL = await mongoose.connection.db.collection('Estoque').find().toArray();
+
 	for(index in args){
-		key = args[index]['Item']['tipo']
-		Key = args[index]['Item']['quantidade']
 		
-		const RESUL = await mongoose.connection.db.collection('Estoque').find().toArray();
+		Key = args[index]['Item']['quantidade']
+		var Segloop = args[index]['Item']['tipo']
+		
+		for (iteM in Segloop){
+			var VerifC = Segloop[iteM]
 	
-		for(index in RESUL){
-			if(key in RESUL[index]){
+			for(index in RESUL){
+				if( Segloop[iteM] in RESUL[index]){
 	
-				re = await mongoose.connection.db.collection('Estoque').findOne({Id:RESUL[index]['Id']})
-				if(re[key] >= Key === true){
-					var NEWVALOR = re[key] - Key
-					await mongoose.connection.db.collection('Estoque').updateOne({Id:RESUL[index]['Id']},{$set:{[key]:NEWVALOR}})
-				}
-			}		
+					re = await mongoose.connection.db.collection('Estoque').findOne({Id:RESUL[index]['Id']})
+					if(re[VerifC] >= Key === true){
+						var NEWVALOR = re[VerifC] - Key
+						await mongoose.connection.db.collection('Estoque').updateOne({Id:RESUL[index]['Id']},{$set:{[VerifC]:NEWVALOR}})
+					}
+				}		
+			}
 		}
-	
 	}
-}
+};
 
 app.post('/inserir',async (req, res)=>{
 
