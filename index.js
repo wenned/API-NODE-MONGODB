@@ -3,6 +3,25 @@ const cors = require('cors');
 const mongoose = require('mongoose')
 const app = express();
 
+
+// models
+const Model = require('./models/Estoque')
+
+
+//async function test(){
+//	const ids = "63fb90b9973be40adf7307b5"
+//	const id = '63fb9211973be40adf7307c1'
+//	const exist = await Model.findById(id)
+//
+//	console.log(exist)
+//
+//}
+
+//test()
+
+
+
+
 //Inicinando servidor
 mongoose.set('strictQuery', true);
 
@@ -37,34 +56,77 @@ app.listen(8080, ()=>{
 	console.log('Servidor iniciado na porta 8080')
 });
 
-app.get('/', async(req, res)=>{
+app.get('/:id?', async(req, res)=>{
+	
+	const Valida = req.params.id || false
+	if(Valida === false){
+		res.send(`=====================================
+				<h1>'API SABOR MINEIRO'</h1>
+			=====================================`)
+	}else{
 
-	try{
+		try{
 
-		const schemas = await mongoose.connection.db.collection('pedidos').find().toArray();
+			switch(req.params.id){
+
+				case 'estoques':
+					const schemas0 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+					res.send(schemas0)
+					break
+
+				case 'pedidos':
 		
-		var cont = false
-		var view =[]
-		for(iten in schemas){
-			if(schemas[iten]['Status'] === 'Pendente'){
-				view.push(schemas[iten])
+					const schemas = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+		
+					var cont = false
+					var view =[]
+					for(iten in schemas){
+						if(schemas[iten]['Status'] === 'Pendente'){
+							view.push(schemas[iten])
+						}
+						if(view.length === 1){
+							cont = true;
+						}
+
+					}
+
+					if(cont){
+					res.send(view)
+					cont = false
+					}else{
+						res.send('AGUARDNANDO NOVOS PEDIDOS')
+					}
+				
+					break
+
+				case 'menu_bebidas':
+					const schemas2 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+					res.send(schemas2)
+					break
+
+				case 'menu_pasteis':
+					const schemas3 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+					res.send(schemas3)
+					break
+
+				case 'menu_frances':
+					const schemas4 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+					res.send(schemas4)
+					break
+
+				case 'menu_suico':
+					const schemas5 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+					res.send(schemas5)
+					break
+
+				default:
+					break
+
 			}
-			if(view.length === 1){
-				cont = true;
-			}
 
+		}catch(err){
+			res.send('Server error', err)
 		}
-
-		if(cont){
-			res.send(view)
-			cont = false
-		}else{
-			res.send('AGUARDNANDO NOVOS PEDIDOS')
-		}
-
-
-	}catch(err){
-		console.log('Server error', err)
 	}
 });
 
@@ -177,12 +239,12 @@ function calcularValorTotal(args){
 async function ResultEstoque(key,valor){
 	
 	try{
-		const RESULT = await mongoose.connection.db.collection('Estoque').find().toArray();
+		const RESULT = await mongoose.connection.db.collection('estoques').find().toArray();
 	
 		for(index in RESULT){
 			if(key in RESULT[index]){
 	
-				re = await mongoose.connection.db.collection('Estoque').findOne({Id:RESULT[index]['Id']})
+				re = await mongoose.connection.db.collection('estoques').findOne({Id:RESULT[index]['Id']})
 				if(re[key] >= valor === true){
 					return {"tipo":key, "quantidade":true}
 				}else{
@@ -278,8 +340,7 @@ async function CalculoStoque(args){
 	}
 
 	var cont = true
-	var returnFalse = []
-	
+	var returnFalse = []	
 	for(ind in DICE_$){
 		if(DICE_$[ind]['quantidade'] === false ){
 			returnFalse.push(DICE_$[ind])
@@ -301,7 +362,7 @@ async function CalculoStoque(args){
 
 async function AlteraStoque(args){
 	
-	const RESUL = await mongoose.connection.db.collection('Estoque').find().toArray();
+	const RESUL = await mongoose.connection.db.collection('estoques').find().toArray();
 
 	for(index in args){
 		
@@ -314,10 +375,10 @@ async function AlteraStoque(args){
 			for(index in RESUL){
 				if( Segloop[iteM] in RESUL[index]){
 	
-					re = await mongoose.connection.db.collection('Estoque').findOne({Id:RESUL[index]['Id']})
+					re = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[index]['Id']})
 					if(re[VerifC] >= Key === true){
 						var NEWVALOR = re[VerifC] - Key
-						await mongoose.connection.db.collection('Estoque').updateOne({Id:RESUL[index]['Id']},{$set:{[VerifC]:NEWVALOR}})
+						await mongoose.connection.db.collection('estoques').updateOne({Id:RESUL[index]['Id']},{$set:{[VerifC]:NEWVALOR}})
 					}
 				}		
 			}
