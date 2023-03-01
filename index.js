@@ -77,7 +77,7 @@ app.put('/input/', async (req, res)=>{
 			try{
 				CalculoStoque(req.body.Itens)
 					.then((ress)=>{
-						console.log('valor retornado foi', ress)
+
 						if(ress === true){
 							AlteraStoque(req.body.Itens)
 
@@ -276,9 +276,10 @@ async function CalculoStoque(args){
 			}
 		}
 	}
+
 	var cont = true
 	var returnFalse = []
-
+	
 	for(ind in DICE_$){
 		if(DICE_$[ind]['quantidade'] === false ){
 			returnFalse.push(DICE_$[ind])
