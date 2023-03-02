@@ -8,20 +8,6 @@ const app = express();
 const Model = require('./models/Estoque')
 
 
-//async function test(){
-//	const ids = "63fb90b9973be40adf7307b5"
-//	const id = '63fb9211973be40adf7307c1'
-//	const exist = await Model.findById(id)
-//
-//	console.log(exist)
-//
-//}
-
-//test()
-
-
-
-
 //Inicinando servidor
 mongoose.set('strictQuery', true);
 
