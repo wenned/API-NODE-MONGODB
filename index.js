@@ -23,18 +23,12 @@ connect.on('connected', async ()=>{
 	}
 })
 
-const date = new Date()
-
 app.use((req, res, next)=>{
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Methods", "GET, PUT, DELETE, PATCH, OPTIONS");
 	app.use(cors());
 	next();	
 })
-
-var hora = String(date.getHours());
-var minuto = String(date.getMinutes()).padStart(2,'0');
-var segundo = String(date.getSeconds());
 
 app.use(express.json());
 
@@ -182,12 +176,11 @@ app.put('/input/', async (req, res)=>{
 						const FILTER = {Id:req.body.key}
 						mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
 						while(UPDATE_fild.legth){UPDATE_fild.pop()};
+						
 						var cont=0
-						for (i=0; i<UPDATE_$.length; i++ ){
-							
-							if(UPDATE_$[i]['Item']['Status'] == 'Feito'){
-								cont++
-							}
+						
+						for (i=0; i<UPDATE_$.length; i++ ){	
+							if(UPDATE_$[i]['Item']['Status'] == 'Feito'){ cont++ }
 						}
 												
 						if (cont == UPDATE_$.length){
@@ -195,7 +188,7 @@ app.put('/input/', async (req, res)=>{
 							const filter = {Id:req.body.key}
 							mongoose.connection.db.collection('pedidos').updateOne(filter, operation)
 						}
-					})
+					});
 				res.send('OK FEITO')
 
 			}catch{err=>{
@@ -213,10 +206,10 @@ function calcularValorTotal(args){
 
 	var soma=0;
 	for (iten in args){
-		soma = soma + args[iten]['Item']['valor']
+		soma = soma + (args[iten]['Item']['quantidade'] * args[iten]['Item']['valor'])
 	};
 	return soma.toFixed(2);
-}
+};
 
 
 async function ResultEstoque(key,valor){
@@ -234,12 +227,12 @@ async function ResultEstoque(key,valor){
 					return {"sabor":key, "quantidade":false}
 				}
 			}		
-		}
+		};
 
 	}catch(err){
 		return ('Erro ao processar verificacao de estoque', err)
 	}
-}
+};
 
 async function CalculoStoque(args){
 	
@@ -248,6 +241,7 @@ async function CalculoStoque(args){
 
 			Key = args[index]['Item']['quantidade']
 			var looP = args[index]['Item']['sabor']
+			
 			for(item in looP){
 	
 				switch(looP[item]){
@@ -324,6 +318,7 @@ async function CalculoStoque(args){
 
 	var cont = true
 	var returnFalse = []	
+	
 	for(ind in DICE_$){
 		if(DICE_$[ind]['quantidade'] === false ){
 			returnFalse.push(DICE_$[ind])
@@ -364,14 +359,10 @@ async function AlteraStoque(args){
 						await mongoose.connection.db.collection('estoques').updateOne({Id:RESUL[index]['Id']},{$set:{[VerifC]:NEWVALOR}})
 					}
 				}		
-			}
-		}
-	}
+			};
+		};
+	};
 };
-
-
-
-
 
 
 app.post('/inserir',async (req, res)=>{
@@ -383,9 +374,10 @@ app.post('/inserir',async (req, res)=>{
 	
 	for(iten in dados){
 		dados[iten]['Id'] = keyreturn
-		dados[iten]['valor_total'] = calcularValorTotal(dados[iten]['Itens']);
-	}
+		r = dados[iten]['valor_total'] = calcularValorTotal(dados[iten]['Itens']);
 
+	}
+	
 	await CalculoStoque(req.body.Itens)
 	.then((ress)=>{
 		if(ress == true){
