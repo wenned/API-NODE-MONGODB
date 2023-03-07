@@ -93,7 +93,7 @@ app.get('/:id?', async(req, res)=>{
 					res.send(schemas4)
 					break
 
-				case 'menu_suico':
+				case 'menu_suicos':
 					const schemas5 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 					res.send(schemas5)
 					break
