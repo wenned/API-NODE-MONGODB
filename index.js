@@ -98,6 +98,10 @@ app.get('/:id?', async(req, res)=>{
 					res.send(schemas5)
 					break
 
+				case 'menu_hamburgues':
+					const schemas6 = await mongoose.connection.db.collection().find(`${req.params.id}`).toArray();
+					break
+
 				default:
 					break
 
@@ -192,7 +196,7 @@ app.put('/input/', async (req, res)=>{
 				res.send('OK FEITO')
 
 			}catch{err=>{
-				console.log('Pedido nao encontrado', err)
+				res.send('Pedido nao encontrado', err)
 			}}
 
 			break
