@@ -36,6 +36,27 @@ app.listen(8080, ()=>{
 	console.log('Servidor iniciado na porta 8080')
 });
 
+async function retornoOne(a){
+	
+	var res = await mongoose.connection.db.collection('estoques').findOne({[a]:{$gt:0}})
+	if(res === null){
+	}else{
+		return true
+	}
+};
+
+async function retornoTwo(b){
+
+	var cont=0;
+	for(item in b){
+		var res = await mongoose.connection.db.collection('estoques').findOne({[b[item]]:{$gt:0}})
+		if(res === null){
+			cont++
+		}
+	}
+	if(cont === 0){return true}
+};
+
 app.get('/:id?', async(req, res)=>{
 	
 	const Valida = req.params.id || false
@@ -85,7 +106,44 @@ app.get('/:id?', async(req, res)=>{
 
 				case 'menu_pasteis':
 					const schemas3 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
-					res.send(schemas3)
+
+					var DADOSRETORNO=[]
+
+					for(item in Object.values(schemas3)){
+						var es = Object.values(schemas3)[item]
+						var ess = Object.keys(es)
+						var forr = ['ja']
+						for(elemento in forr) {
+							var t = ess[1].split('-')	
+			
+							if(ess[1].split('-').length === 1){
+								const re = await retornoOne(t)
+								if(re === true){
+									//DADOSRETORNO.push(es['_id'])
+									DADOSRETORNO.push(t)
+								}					
+							}
+
+							if(ess[1].split('-').length === 2){
+								const res = await retornoTwo(t)
+								if(res === true){
+									//DADOSRETORNO.push(es['_id'])
+									DADOSRETORNO.push(t)
+								}					
+							}
+
+							if(ess[1].split('-').length === 3){
+								const ress = await retornoTwo(t)
+								if(ress === true){
+									//DADOSRETORNO.push(es['_id'])
+									DADOSRETORNO.push(t)
+								}					
+							}
+	
+						}	
+					}
+					
+					res.status(200).send(DADOSRETORNO)
 					break
 
 				case 'menu_frances':
@@ -101,7 +159,7 @@ app.get('/:id?', async(req, res)=>{
 				case 'menu_hamburgues':
 					const schemas6 = await mongoose.connection.db.collection().find(`${req.params.id}`).toArray();
 					break
-
+				
 				default:
 					break
 
@@ -210,14 +268,14 @@ function calcularValorTotal(args){
 
 	var soma=0;
 	for (iten in args){
-		soma = soma + (args[iten]['Item']['quantidade'] * args[iten]['Item']['valor'])
+		soma = soma + (args[iten]['Item']['Quantidade'] * args[iten]['Item']['Valor'])
 	};
 	return soma.toFixed(2);
 };
 
 
 async function ResultEstoque(key,valor){
-	
+		
 	try{
 		const RESULT = await mongoose.connection.db.collection('estoques').find().toArray();
 	
@@ -226,9 +284,9 @@ async function ResultEstoque(key,valor){
 	
 				re = await mongoose.connection.db.collection('estoques').findOne({Id:RESULT[index]['Id']})
 				if(re[key] >= valor === true){
-					return {"sabor":key, "quantidade":true}
+					return {"Sabor":key, "Quantidade":true}
 				}else{
-					return {"sabor":key, "quantidade":false}
+					return {"Sabor":key, "Quantidade":false}
 				}
 			}		
 		};
@@ -243,8 +301,8 @@ async function CalculoStoque(args){
 	DICE_$ = []
 	for(index in args){
 
-			Key = args[index]['Item']['quantidade']
-			var looP = args[index]['Item']['sabor']
+			Key = args[index]['Item']['Quantidade']
+			var looP = args[index]['Item']['Sabor']
 			
 			for(item in looP){
 	
@@ -324,7 +382,7 @@ async function CalculoStoque(args){
 	var returnFalse = []	
 	
 	for(ind in DICE_$){
-		if(DICE_$[ind]['quantidade'] === false ){
+		if(DICE_$[ind]['Quantidade'] === false ){
 			returnFalse.push(DICE_$[ind])
 			cont = false
 		}
@@ -348,8 +406,8 @@ async function AlteraStoque(args){
 
 	for(index in args){
 		
-		Key = args[index]['Item']['quantidade']
-		var Segloop = args[index]['Item']['sabor']
+		Key = args[index]['Item']['Quantidade']
+		var Segloop = args[index]['Item']['Sabor']
 		
 		for (iteM in Segloop){
 			var VerifC = Segloop[iteM]
@@ -371,57 +429,62 @@ async function AlteraStoque(args){
 
 app.post('/inserir',async (req, res)=>{
 
-	const dados = []
-	dados.push(req.body)
+	if(Object.keys(req.body).length === 0){
+		//
+	}else{
+		var dados = []
+		dados.push(req.body)
+		var keyreturn = 'Y'+String(Math.random()).slice(2,9);
 	
-	var keyreturn = 'Y'+String(Math.random()).slice(2,9);
-	
-	for(iten in dados){
-		dados[iten]['Id'] = keyreturn
-		r = dados[iten]['valor_total'] = calcularValorTotal(dados[iten]['Itens']);
-
-	}
-	
-	await CalculoStoque(req.body.Itens)
-	.then((ress)=>{
-		if(ress == true){
-			
-			var KEY_FILTER;
-			var NPEDIDO;
-
-			AlteraStoque(req.body.Itens)
-
-			mongoose.connection.db.collection('pedidos').insertOne(dados[iten])
-				
-			while(dados.length){ dados.pop();}
-
-			async function gravar(){
-				await mongoose.connection.db.collection('pedidos').findOne({Id:`${keyreturn}`})
-				.then(res =>{
-					KEY_FILTER = res['_id'];
-					})
-
-				await mongoose.connection.db.collection('numero_pedido').find().toArray()
-				.then(ress =>{
-					NPEDIDO = ress[0]['Nu_pedido']+1
-
-				mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:ress[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
-				mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
-				mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Data:new Date()}})
-				
-				OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
-				const FILTER = {_id:KEY_FILTER}
-									
-				mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
-					.then(res=>console.log('Pedido enviado com sucesso'))
-
-				res.send('PEDIDO ENVIADO')
-				});
-			}
-			gravar()
-			
-		}else{
-			res.send('FALHA AO PRECESSAR PEDIDO')
+		for(iten in dados){
+			dados[iten]['Id'] = keyreturn	
+			r = dados[iten]['valor_total'] = calcularValorTotal(dados[iten]['Itens']);
+		
 		}
-	});
+	
+		await CalculoStoque(req.body.Itens)
+		.then((ress)=>{
+			if(ress == true){
+			
+				var KEY_FILTER;
+				var NPEDIDO;
+
+				AlteraStoque(req.body.Itens)
+				mongoose.connection.db.collection('pedidos').insertOne(dados[iten])
+				
+				while(dados.length){ dados.pop();}
+
+				async function gravar(){
+					await mongoose.connection.db.collection('pedidos').findOne({Id:`${keyreturn}`})
+					.then(res =>{
+						KEY_FILTER = res['_id'];
+						})
+
+					await mongoose.connection.db.collection('numero_pedido').find().toArray()
+					.then(ress =>{
+						NPEDIDO = ress[0]['Nu_pedido']+1
+
+					mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:ress[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
+					mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
+					mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Data:new Date()}})
+				
+					OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
+					const FILTER = {_id:KEY_FILTER}
+									
+					mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+						.then(res=>console.log('Pedido enviado com sucesso'))
+
+					res.send(true)
+					});
+				}
+				gravar()
+			
+			}else{
+				console.log('FALHA AO PRECESSAR PEDIDO')
+				res.send(ress)
+			}
+		});
+	
+		}
+
 });
