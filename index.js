@@ -65,9 +65,13 @@ app.get('/:id?', async(req, res)=>{
 				<h1>'API SABOR MINEIRO'</h1>
 			=====================================`)
 	}else{
+		
+
+		var DADOSRETORNO=[]
+
 
 		try{
-
+			
 			switch(req.params.id){
 
 				case 'estoques':
@@ -106,9 +110,7 @@ app.get('/:id?', async(req, res)=>{
 
 				case 'menu_pasteis':
 					const schemas3 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
-
-					var DADOSRETORNO=[]
-
+					
 					for(item in Object.values(schemas3)){
 						var es = Object.values(schemas3)[item]
 						var ess = Object.keys(es)
@@ -119,24 +121,24 @@ app.get('/:id?', async(req, res)=>{
 							if(ess[1].split('-').length === 1){
 								const re = await retornoOne(t)
 								if(re === true){
-									//DADOSRETORNO.push(es['_id'])
-									DADOSRETORNO.push(t)
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
 								}					
 							}
 
 							if(ess[1].split('-').length === 2){
 								const res = await retornoTwo(t)
 								if(res === true){
-									//DADOSRETORNO.push(es['_id'])
-									DADOSRETORNO.push(t)
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
 								}					
 							}
 
 							if(ess[1].split('-').length === 3){
 								const ress = await retornoTwo(t)
 								if(ress === true){
-									//DADOSRETORNO.push(es['_id'])
-									DADOSRETORNO.push(t)
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
 								}					
 							}
 	
@@ -144,16 +146,90 @@ app.get('/:id?', async(req, res)=>{
 					}
 					
 					res.status(200).send(DADOSRETORNO)
+					while(DADOSRETORNO.length){DADOSRETORNO.pop()}
+
 					break
 
 				case 'menu_frances':
 					const schemas4 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
-					res.send(schemas4)
+					
+					for(item in Object.values(schemas4)){
+						var es = Object.values(schemas4)[item]
+						var ess = Object.keys(es)
+						var forr = ['ja']
+						for(elemento in forr) {
+							var t = ess[1].split('-')	
+			
+							if(ess[1].split('-').length === 1){
+								const re = await retornoOne(t)
+								if(re === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+
+							if(ess[1].split('-').length === 2){
+								const res = await retornoTwo(t)
+								if(res === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+
+							if(ess[1].split('-').length === 3){
+								const ress = await retornoTwo(t)
+								if(ress === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+	
+						}	
+					}
+					
+					res.status(200).send(DADOSRETORNO)
+					while(DADOSRETORNO.length){DADOSRETORNO.pop()}
 					break
 
 				case 'menu_suicos':
 					const schemas5 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
-					res.send(schemas5)
+					
+					for(item in Object.values(schemas5)){
+						var es = Object.values(schemas5)[item]
+						var ess = Object.keys(es)
+						var forr = ['ja']
+						for(elemento in forr) {
+							var t = ess[1].split('-')	
+			
+							if(ess[1].split('-').length === 1){
+								const re = await retornoOne(t)
+								if(re === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+
+							if(ess[1].split('-').length === 2){
+								const res = await retornoTwo(t)
+								if(res === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+
+							if(ess[1].split('-').length === 3){
+								const ress = await retornoTwo(t)
+								if(ress === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+	
+						}	
+					}
+					
+					res.status(200).send(DADOSRETORNO)
+					while(DADOSRETORNO.length){DADOSRETORNO.pop()}
 					break
 
 				case 'menu_hamburgues':
