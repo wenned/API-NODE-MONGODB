@@ -57,23 +57,30 @@ async function retornoTwo(b){
 	if(cont === 0){return true}
 };
 
-app.get('/:id?', async(req, res)=>{
+app.get('/:id?/:pd?', async(req, res)=>{
 	
 	const Valida = req.params.id || false
+	
 	if(Valida === false){
 		res.send(`=====================================
 				<h1>'API SABOR MINEIRO'</h1>
 			=====================================`)
 	}else{
 		
-
 		var DADOSRETORNO=[]
-
 
 		try{
 			
 			switch(req.params.id){
+				
+				case 'pedido':
+					await mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:`${req.params.pd}`})
+						.then(doc =>{
+							res.send(JSON.stringify(doc))
+							
+						})
 
+					break
 				case 'estoques':
 					const schemas0 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 					res.send(schemas0)
@@ -373,7 +380,7 @@ async function ResultEstoque(key,valor){
 };
 
 async function CalculoStoque(args){
-	
+
 	DICE_$ = []
 	for(index in args){
 
@@ -504,11 +511,10 @@ async function AlteraStoque(args){
 
 
 app.post('/inserir',async (req, res)=>{
-
+	var dados = []
 	if(Object.keys(req.body).length === 0){
 		//
 	}else{
-		var dados = []
 		dados.push(req.body)
 		var keyreturn = 'Y'+String(Math.random()).slice(2,9);
 	
@@ -517,16 +523,17 @@ app.post('/inserir',async (req, res)=>{
 			r = dados[iten]['valor_total'] = calcularValorTotal(dados[iten]['Itens']);
 		
 		}
-	
+
 		await CalculoStoque(req.body.Itens)
 		.then((ress)=>{
+
 			if(ress == true){
 			
 				var KEY_FILTER;
 				var NPEDIDO;
 
 				AlteraStoque(req.body.Itens)
-				mongoose.connection.db.collection('pedidos').insertOne(dados[iten])
+				mongoose.connection.db.collection('pedidos').insertOne(dados[0])
 				
 				while(dados.length){ dados.pop();}
 
@@ -543,14 +550,16 @@ app.post('/inserir',async (req, res)=>{
 					mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:ress[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
 					mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
 					mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Data:new Date()}})
-				
+	
 					OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
 					const FILTER = {_id:KEY_FILTER}
 									
 					mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
 						.then(res=>console.log('Pedido enviado com sucesso'))
 
-					res.send(true)
+					var retoRno = {"Status": true, "Pedido":""}
+					retoRno['Pedido'] = 'SM'+NPEDIDO 
+					res.send(JSON.stringify(retoRno))
 					});
 				}
 				gravar()
