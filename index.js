@@ -254,47 +254,47 @@ app.get('/:id?/:pd?', async(req, res)=>{
 	}
 });
 
-app.put('/input/', async (req, res)=>{
-	
-	switch(req.body.express){
+app.put('/input/:id?', async (req, res)=>{
+
+	switch(req.params.id){
 	
 		case 'addnew':
 
 			try{
 				CalculoStoque(req.body.Itens)
 					.then((ress)=>{
-
+	
 						if(ress === true){
 							AlteraStoque(req.body.Itens)
 
 							var UPDATE_fild;
 
-							mongoose.connection.db.collection('pedidos').findOne({Id:req.body.key})
+							mongoose.connection.db.collection('pedidos').findOne({Id:req.body.Id})
 								.then(res =>{
-					
-							UPDATE_fild = res['Itens']
+									UPDATE_fild = res['Itens']
 			
-							for(var i=0; i<req.body.Itens.length; i++){
-								UPDATE_fild.push(req.body.Itens[i])
-							}
+									for(var i=0; i<req.body.Itens.length; i++){
+										UPDATE_fild.push(req.body.Itens[i])
+									}
 
-							const OPERATION = {$set:{Itens:UPDATE_fild}}
-							const FILTER = {Id:req.body.key}
-							mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+									const OPERATION = {$set:{Itens:req.body.Itens}}
+									const FILTER = {Id:req.body.Id}
+									
+									mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
 						
-							var NEWVALUE = calcularValorTotal(UPDATE_fild)
-							mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{valor_total:NEWVALUE}})
+									var NEWVALUE = calcularValorTotal(req.body.Itens)
+									mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.Id},{$set:{valor_total:NEWVALUE}})
 
-							while(UPDATE_fild.legth){UPDATE_fild.pop()};
+									while(UPDATE_fild.legth){UPDATE_fild.pop()};
 						
-							if(res['Status'] == 'Finalizado'){
-								mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{Status:'Pendente'}})
-								}						
-							});
+									if(res['Status'] == 'Finalizado'){
+										mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{Status:'Pendente'}})
+									}
+								});
 						}else{
-							res.send('PEIDO NAO PODE SER PROCESSADOR')
+							res.send(false)
 						}
-						res.send('PEDIDO ADICIONADO')
+						res.send(true)
 					})
 
 			}catch(err){
