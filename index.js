@@ -105,7 +105,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 					res.send(view)
 					cont = false
 					}else{
-						res.send('AGUARDNANDO NOVOS PEDIDOS')
+						res.send(false)
 					}
 				
 					break
@@ -263,14 +263,14 @@ app.put('/input/:id?', async (req, res)=>{
 			try{
 
 				if(req.body.Nu_Pedido.length > 2 && req.body.Nu_Pedido != null && req.body.Nu_Pedido != undefined ){
-					
-					AlteraStoque(req.body.Itens, req.body.Nu_Pedido)
-
+						
 					CalculoStoque(req.body.Itens)
 						.then((ress)=>{
-	
+													
 							if(ress === true){
-								// voltar a funcao AlteraEstoque para essa possicao com alguma validacao 							
+									
+								AlteraStoque(req.body.Itens, req.body.Nu_Pedido)
+								
 								var UPDATE_fild;
 								UPDATE_fild = req.body.Itens
 	
@@ -285,9 +285,10 @@ app.put('/input/:id?', async (req, res)=>{
 								const FILTER = {Id:req.body.Id}
 									
 								mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
-						
+					
 								var NEWVALUE = calcularValorTotal(req.body.Itens)
 								mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.Id},{$set:{valor_total:NEWVALUE}})
+								
 
 								while(UPDATE_fild.legth){UPDATE_fild.pop()};
 						
@@ -298,8 +299,8 @@ app.put('/input/:id?', async (req, res)=>{
 							}else{
 								res.send(false)
 							}
-							res.send(true)
 						})
+						res.send(true)
 
 				}
 			}catch{ err =>console.log(err)
@@ -547,7 +548,9 @@ app.post('/inserir',async (req, res)=>{
 	if(Object.keys(req.body).length === 0){
 		//
 	}else{
+		
 		dados.push(req.body)
+		
 		var keyreturn = 'Y'+String(Math.random()).slice(2,9);
 	
 		for(iten in dados){
@@ -558,12 +561,11 @@ app.post('/inserir',async (req, res)=>{
 
 		await CalculoStoque(req.body.Itens)
 		.then((ress)=>{
-
-			if(ress == true){
+			
+			if(ress === true){
 			
 				var KEY_FILTER;
 				var NPEDIDO;
-
 				AlteraStoque(req.body.Itens)
 				
 				for(uti in req.body.Itens){
@@ -583,7 +585,6 @@ app.post('/inserir',async (req, res)=>{
 					await mongoose.connection.db.collection('numero_pedido').find().toArray()
 					.then(ress =>{
 						NPEDIDO = ress[0]['Nu_pedido']+1
-
 					mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:ress[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
 					mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
 					mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Data:new Date()}})
@@ -592,21 +593,20 @@ app.post('/inserir',async (req, res)=>{
 					const FILTER = {_id:KEY_FILTER}
 									
 					mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
-						.then(res=>console.log('Pedido enviado com sucesso'))
-
+						.then(res =>{return true})
+				
 					var retoRno = {"Status": true, "Pedido":""}
 					retoRno['Pedido'] = 'SM'+NPEDIDO 
 					res.send(JSON.stringify(retoRno))
 					});
 				}
-				gravar()
-			
+				gravar()	
 			}else{
 				console.log('FALHA AO PRECESSAR PEDIDO')
-				res.send(ress)
+				//res.send(ress)
 			}
+
 		});
 	
-		}
-
-});
+	}
+})
