@@ -254,7 +254,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 	}
 });
 
-app.put('/input/:id?', async (req, res)=>{
+app.put('/input/:id?/:nu?', async (req, res)=>{
 
 	switch(req.params.id){
 	
@@ -268,7 +268,7 @@ app.put('/input/:id?', async (req, res)=>{
 						.then((ress)=>{
 													
 							if(ress === true){
-									
+											
 								AlteraStoque(req.body.Itens, req.body.Nu_Pedido)
 								
 								var UPDATE_fild;
@@ -291,9 +291,9 @@ app.put('/input/:id?', async (req, res)=>{
 								
 
 								while(UPDATE_fild.legth){UPDATE_fild.pop()};
-						
-								if(res['Status'] == 'Finalizado'){
-									mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.key},{$set:{Status:'Pendente'}})
+								
+								if(req.body.Status === 'Finalizado'){
+									mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.Id},{$set:{Status:'Pendente'}})
 								}
 
 							}else{
@@ -317,13 +317,15 @@ app.put('/input/:id?', async (req, res)=>{
 			var UPDATE_$;
 
 			try{
-				await mongoose.connection.db.collection('pedidos').findOne({Id:req.body.key})
+				await mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:req.body.codigo})
 					.then(res =>{
+
 						UPDATE_fild = res['Itens']
 						UPDATE_$ = res['Itens']
-						UPDATE_fild[req.body.id]['Item']['Status']='Feito'
+						UPDATE_fild[req.params.nu]['Item']['Status']='Feito'
+
 						const OPERATION = {$set:{Itens:UPDATE_fild}}
-						const FILTER = {Id:req.body.key}
+						const FILTER = {Nu_Pedido:req.body.codigo}
 						mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
 						while(UPDATE_fild.legth){UPDATE_fild.pop()};
 						
@@ -335,7 +337,7 @@ app.put('/input/:id?', async (req, res)=>{
 												
 						if (cont == UPDATE_$.length){
 							const operation = {$set:{Status:"Finalizado"}}
-							const filter = {Id:req.body.key}
+							const filter = {Nu_Pedido:req.body.codigo}
 							mongoose.connection.db.collection('pedidos').updateOne(filter, operation)
 						}
 					});
