@@ -255,7 +255,8 @@ app.get('/:id?/:pd?', async(req, res)=>{
 });
 
 app.put('/input/:id?/:nu?', async (req, res)=>{
-
+		
+	//console.log(req.body.Itens)
 	switch(req.params.id){
 	
 		case 'addnew':
@@ -263,23 +264,15 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 			try{
 
 				if(req.body.Nu_Pedido.length > 2 && req.body.Nu_Pedido != null && req.body.Nu_Pedido != undefined ){
-						
-					CalculoStoque(req.body.Itens)
+
+					await CalculoStoque(req.body.Itens)
 						.then((ress)=>{
 													
 							if(ress === true){
-											
 								AlteraStoque(req.body.Itens, req.body.Nu_Pedido)
 								
-								var UPDATE_fild;
+								var UPDATE_fild
 								UPDATE_fild = req.body.Itens
-	
-								for(vr in req.body.Itens){
-									if(req.body.Itens[vr]['Item']['Status'][1] === "false"){
-										
-										UPDATE_fild[vr]['Item']['Status'][1] = "true"
-									}
-								}
 
 								const OPERATION = {$set:{Itens:UPDATE_fild}}
 								const FILTER = {Id:req.body.Id}
@@ -295,13 +288,34 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 								if(req.body.Status === 'Finalizado'){
 									mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.Id},{$set:{Status:'Pendente'}})
 								}
+								
+								mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:`${req.body.Nu_Pedido}`})
+									.then(doc =>{
+	
+										var ItensTrue = []
+										
+										for(item in doc.Itens){
+											ItensTrue.push(doc.Itens[item])
+										}
+
+										for(g in ItensTrue){
+											if(ItensTrue[g]['Item']['Status'][1] === "false" ){
+												ItensTrue[g]['Item']['Status'][1] = "true"
+											}
+										}
+										mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.Id},{$set:{Itens:ItensTrue}})
+									})
+							
+								res.send(true)
+
 
 							}else{
+								//console.log(ress)
 								res.send(false)
 							}
-						})
-						res.send(true)
 
+
+						})
 				}
 			}catch{ err =>console.log(err)
 
@@ -322,7 +336,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 
 						UPDATE_fild = res['Itens']
 						UPDATE_$ = res['Itens']
-						UPDATE_fild[req.params.nu]['Item']['Status']='Feito'
+						UPDATE_fild[req.params.nu]['Item']['Status'][0]='Feito'
 
 						const OPERATION = {$set:{Itens:UPDATE_fild}}
 						const FILTER = {Nu_Pedido:req.body.codigo}
@@ -332,7 +346,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 						var cont=0
 						
 						for (i=0; i<UPDATE_$.length; i++ ){	
-							if(UPDATE_$[i]['Item']['Status'] == 'Feito'){ cont++ }
+							if(UPDATE_$[i]['Item']['Status'][0] == 'Feito'){ cont++ }
 						}
 												
 						if (cont == UPDATE_$.length){
@@ -496,10 +510,10 @@ async function AlteraStoque(args, pedido=0){
 
 	if(pedido.length > 2){
 
-		for(var t=0; t< args.length; t++){
-			if(args[t]['Item']['Status'][1] === "false"){
-				
-				KeY = args[t]['Item']['Quantidade']
+		for(var t=0; t < args.length; t++){
+			if(args[t]['Item']['Status'][1] === "false"){	
+
+				var KeY = args[t]['Item']['Quantidade']
 				var Segloo = args[t]['Item']['Sabor']
 				
 				for (IteM in Segloo){
@@ -510,6 +524,7 @@ async function AlteraStoque(args, pedido=0){
 	
 							ress = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[inDex]['Id']})
 							if(ress[VeriC] >= KeY === true){
+			
 								var NEWVALO = ress[VeriC] - KeY
 								await mongoose.connection.db.collection('estoques').updateOne({Id:RESUL[inDex]['Id']},{$set:{[VeriC]:NEWVALO}})
 							}	
@@ -518,11 +533,11 @@ async function AlteraStoque(args, pedido=0){
 				};
 			}
 		}
-
+		return true
 	}else{
 		if(pedido === 0){
 			for(index in args){
-				Key = args[index]['Item']['Quantidade']
+				var Key = args[index]['Item']['Quantidade']
 				var Segloop = args[index]['Item']['Sabor']
 		
 				for (iteM in Segloop){
