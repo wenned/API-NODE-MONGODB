@@ -310,8 +310,8 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 
 
 							}else{
-								//console.log(ress)
-								res.send(false)
+								res.json(JSON.stringify(ress))
+
 							}
 
 
