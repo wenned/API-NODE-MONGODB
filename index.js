@@ -256,16 +256,23 @@ app.get('/:id?/:pd?', async(req, res)=>{
 
 app.put('/input/:id?/:nu?', async (req, res)=>{
 		
-	//console.log(req.body.Itens)
-	switch(req.params.id){
+	var DADOS_CALCULO = []
 	
+	switch(req.params.id){
+
 		case 'addnew':
 
 			try{
 
+				for(dados in req.body.Itens){
+					if(req.body.Itens[dados]['Item']['Status'][1] === "false" ){
+						DADOS_CALCULO.push(req.body.Itens[dados])
+					}
+				}
+
 				if(req.body.Nu_Pedido.length > 2 && req.body.Nu_Pedido != null && req.body.Nu_Pedido != undefined ){
 
-					await CalculoStoque(req.body.Itens)
+					await CalculoStoque(DADOS_CALCULO)
 						.then((ress)=>{
 													
 							if(ress === true){
@@ -282,8 +289,8 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 								var NEWVALUE = calcularValorTotal(req.body.Itens)
 								mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.Id},{$set:{valor_total:NEWVALUE}})
 								
-
 								while(UPDATE_fild.legth){UPDATE_fild.pop()};
+								while(DADOS_CALCULO.length){DADOS_CALCULO.pop()}
 								
 								if(req.body.Status === 'Finalizado'){
 									mongoose.connection.db.collection('pedidos').updateOne({Id:req.body.Id},{$set:{Status:'Pendente'}})
