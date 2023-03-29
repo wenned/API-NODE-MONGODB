@@ -112,7 +112,44 @@ app.get('/:id?/:pd?', async(req, res)=>{
 
 				case 'menu_bebidas':
 					const schemas2 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
-					res.send(schemas2)
+	
+					for(item in Object.values(schemas2)){
+						var es = Object.values(schemas2)[item]
+						var ess = Object.keys(es)
+						var forr = ['ja']
+						for(elemento in forr) {
+							var t = ess[1].split('-')	
+			
+							if(ess[1].split('-').length === 1){
+								const re = await retornoOne(t)
+								if(re === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+
+							if(ess[1].split('-').length === 2){
+								const res = await retornoTwo(t)
+								if(res === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+
+							if(ess[1].split('-').length === 3){
+								const ress = await retornoTwo(t)
+								if(ress === true){
+									DADOSRETORNO.push(es)
+									//DADOSRETORNO.push(t)
+								}					
+							}
+	
+						}	
+					}
+					
+					res.status(200).send(DADOSRETORNO)
+					while(DADOSRETORNO.length){DADOSRETORNO.pop()}
+
 					break
 
 				case 'menu_pasteis':
