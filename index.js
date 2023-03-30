@@ -1,8 +1,9 @@
 const express = require('express');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const mongoose = require('mongoose')
 const app = express();
-
 
 // models
 const Model = require('./models/Estoque')
@@ -22,6 +23,16 @@ connect.on('connected', async ()=>{
 		console.log(err)
 	}
 })
+
+app.use(cookieParser());
+
+app.use(session({
+
+	secret:'SABORMINEIRO',
+	resave: false,
+	saveUninitialized: true
+
+}));
 
 app.use((req, res, next)=>{
 	res.header("Access-Control-Allow-Origin", "*");
@@ -57,6 +68,60 @@ async function retornoTwo(b){
 	if(cont === 0){return true}
 };
 
+async function insertKey(mesa){
+	
+	try{
+		var okay;
+		const mesas = await mongoose.connection.db.collection('mesas').find().toArray();
+		for(var i=0; i < mesas.length; i++){
+			Object.keys(mesas[i]).forEach((e)=>{
+				if(e === `${mesa}`){
+					okay = mesas[i]['Id']
+				}
+			})
+		}
+		return okay
+	}catch(err){console.log('DEU ALGUM ERRO ', err)
+	}
+};	
+
+const accessKey = Math.random().toString(36).substring(2,15)
+const MESAV = ['Mesa1', 'Mesa2','Mesa3','Mesa4','Mesa5','Mesa6','Mesa7','Mesa8','Mesa9','Mesa10','Mesa11','Mesa12','Mesa13','Mesa14','Mesa15','Mesa16','Mesa17','Mesa18','Mesa19','Mesa20']
+
+app.get('/mesa1/:id?', async(req, res)=>{
+	
+	var resp = await insertKey('Mesa1')
+	
+	//const Mesa = await mongoose.connection.db.collection('mesas').find().toArray();
+	//var cont=0;
+	//for(var i=0; i < Mesa.length; i++){
+	//	Object.keys(Mesa[i]).forEach((e)=>{ 
+	//		if(e === MESAV[i] && Mesa[i][`${MESAV[i]}`].length === 0){
+	//			cont++
+	//		}
+	//	})
+	//}
+	
+	if(req.params.id === 'apagar'){
+		mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{Mesa1:false}})
+	}else{
+		await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
+			.then(doc =>{
+				if(doc['Mesa1'] === false){
+					req.session.accessKey = accessKey;
+					res.json({accessKey})
+					mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{Mesa1:`${accessKey}`}})
+				}else{
+					if(doc['Mesa1'].length > 0 && req.params.id === doc['Mesa1']){
+						res.json({accessKey})
+					}else{
+						res.json(false)
+					}
+				}			
+			})
+	}
+});
+
 app.get('/:id?/:pd?', async(req, res)=>{
 	
 	const Valida = req.params.id || false
@@ -83,6 +148,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 					break
 				case 'estoques':
 					const schemas0 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+
 					res.send(schemas0)
 					break
 
