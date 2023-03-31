@@ -16,7 +16,6 @@ const connect = require('./conectMongo')
 connect.on('connected', async ()=>{
 	
 	try{
-
 		console.log('Conectando ao Servidor!')
 		//mongoose.connection.close();
 	}catch(err){
@@ -88,40 +87,6 @@ async function insertKey(mesa){
 const accessKey = Math.random().toString(36).substring(2,15)
 const MESAV = ['Mesa1', 'Mesa2','Mesa3','Mesa4','Mesa5','Mesa6','Mesa7','Mesa8','Mesa9','Mesa10','Mesa11','Mesa12','Mesa13','Mesa14','Mesa15','Mesa16','Mesa17','Mesa18','Mesa19','Mesa20']
 
-app.get('/mesa1/:id?', async(req, res)=>{
-	
-	var resp = await insertKey('Mesa1')
-	
-	//const Mesa = await mongoose.connection.db.collection('mesas').find().toArray();
-	//var cont=0;
-	//for(var i=0; i < Mesa.length; i++){
-	//	Object.keys(Mesa[i]).forEach((e)=>{ 
-	//		if(e === MESAV[i] && Mesa[i][`${MESAV[i]}`].length === 0){
-	//			cont++
-	//		}
-	//	})
-	//}
-	
-	if(req.params.id === 'apagar'){
-		mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{Mesa1:false}})
-	}else{
-		await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
-			.then(doc =>{
-				if(doc['Mesa1'] === false){
-					req.session.accessKey = accessKey;
-					res.json({accessKey})
-					mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{Mesa1:`${accessKey}`}})
-				}else{
-					if(doc['Mesa1'].length > 0 && req.params.id === doc['Mesa1']){
-						res.json({accessKey})
-					}else{
-						res.json(false)
-					}
-				}			
-			})
-	}
-});
-
 app.get('/:id?/:pd?', async(req, res)=>{
 	
 	const Valida = req.params.id || false
@@ -138,11 +103,16 @@ app.get('/:id?/:pd?', async(req, res)=>{
 			
 			switch(req.params.id){
 				
+				case 'mesas':
+					const Mesas = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+					res.send(Mesas)
+
+					break
+
 				case 'pedido':
 					await mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:`${req.params.pd}`})
 						.then(doc =>{
-							res.send(JSON.stringify(doc))
-							
+							res.send(JSON.stringify(doc))					
 						})
 
 					break
@@ -736,4 +706,84 @@ app.post('/inserir',async (req, res)=>{
 		});
 	
 	}
-})
+});
+
+/* ROTAS DE LIBEERACAO E GERACAO DE ACESSO AS MESAS */
+
+app.get('/mesa1/:id?', async(req, res)=>{
+	
+	var resp = await insertKey('Mesa1')
+	
+	const Mesa = await mongoose.connection.db.collection('mesas').find().toArray();
+	var cont=0;
+	for(var i=0; i < Mesa.length; i++){
+		Object.keys(Mesa[i]).forEach((e)=>{ 
+			if(e === MESAV[i] && Mesa[i][`${MESAV[i]}`] === false){
+				cont++
+			}
+		})
+	}
+	console.log('fora do else')
+
+		if(req.params.id === 'apagar'){
+			mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{Mesa1:false}})
+		}else{
+			console.log('dentro do else')
+			await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
+				.then(doc =>{
+					if(doc['Mesa1'] === false){
+						req.session.accessKey = accessKey;
+						res.json({accessKey})
+						mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{Mesa1:`${accessKey}`}})
+					}else{
+						if(doc['Mesa1'].length > 0 && req.params.id === doc['Mesa1']){
+							res.json({accessKey})
+						}else{
+							res.json(false)
+						}
+					}			
+				})
+		}
+
+	  	
+});
+
+
+app.get('/mesa2/:id?', async(req, res)=>{
+	
+	var resp = await insertKey('Mesa2')
+	
+	const Mesa2 = await mongoose.connection.db.collection('mesas').find().toArray();
+	var cont=0;
+	for(var i=0; i < Mesa2.length; i++){
+		Object.keys(Mesa2[i]).forEach((e)=>{ 
+			if(e === MESAV[i] && Mesa2[i][`${MESAV[i]}`] === false){
+				cont++
+			}
+		})
+	}
+	//if(cont >= 20){
+		if(req.params.id === 'apagar'){
+			mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{Mesa1:false}})
+			res.json(['true'])
+		}else{
+			await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
+				.then(doc =>{
+					if(doc['Mesa2'] === false){
+						req.session.accessKey = accessKey;
+						res.json({accessKey})
+						mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{Mesa2:`${accessKey}`}})
+					}else{
+						if(doc['Mesa2'].length > 0 && req.params.id === doc['Mesa2']){
+							res.json({accessKey})
+						}else{
+							res.json(false)
+						}
+					}			
+				})
+		}
+
+	//}  	
+});
+
+
