@@ -701,7 +701,9 @@ async function AlteraStoque(args, pedido=0){
 
 
 app.post('/inserir',async (req, res)=>{
+	
 	var dados = []
+	
 	if(Object.keys(req.body).length === 0){
 		//
 	}else{
@@ -734,30 +736,33 @@ app.post('/inserir',async (req, res)=>{
 				while(dados.length){ dados.pop();}
 
 				async function gravar(){
-					await mongoose.connection.db.collection('pedidos').findOne({Id:`${keyreturn}`})
-					.then(res =>{
-						KEY_FILTER = res['_id'];
-						})
-
 					await mongoose.connection.db.collection('numero_pedido').find().toArray()
 					.then(ress =>{
 						NPEDIDO = ress[0]['Nu_pedido']+1
 					mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:ress[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
-					mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
-					mongoose.connection.db.collection('pedidos').updateOne({_id:KEY_FILTER},{$set:{Data:new Date()}})
-	
-					OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
-					const FILTER = {_id:KEY_FILTER}
+					mongoose.connection.db.collection('pedidos').updateOne({Id:keyreturn},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
+					mongoose.connection.db.collection('pedidos').updateOne({Id:keyreturn},{$set:{Data:new Date()}})
+						
+					//mongoose.connection.db.collection('pedidos').findOne({Id:`${keyreturn}`})
+					//.then(res =>{
+						
+					//	KEY_FILTER = res['_id'];
+					//	})
+
+					//console.log()
+					//OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
+					//const FILTER = {Id:keyreturn}
 									
-					mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
-						.then(res =>{return true})
-				
+					//mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+					//	.then(res =>{return true})
+			
 					var retoRno = {"Status": true, "Pedido":""}
 					retoRno['Pedido'] = 'SM'+NPEDIDO 
 					res.send(JSON.stringify(retoRno))
 					});
 				}
-				gravar()	
+				gravar()
+				//console.log('aqui depois do gravar', KEY_FILTER)
 			}else{
 				console.log('FALHA AO PRECESSAR PEDIDO')
 				//res.send(ress)
