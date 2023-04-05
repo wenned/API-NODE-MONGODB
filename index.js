@@ -742,19 +742,6 @@ app.post('/inserir',async (req, res)=>{
 					mongoose.connection.db.collection('numero_pedido').updateOne({Nu_pedido:ress[0]['Nu_pedido']},{$set:{Nu_pedido:NPEDIDO}});
 					mongoose.connection.db.collection('pedidos').updateOne({Id:keyreturn},{$set:{Nu_Pedido:'SM'+NPEDIDO}})
 					mongoose.connection.db.collection('pedidos').updateOne({Id:keyreturn},{$set:{Data:new Date()}})
-						
-					//mongoose.connection.db.collection('pedidos').findOne({Id:`${keyreturn}`})
-					//.then(res =>{
-						
-					//	KEY_FILTER = res['_id'];
-					//	})
-
-					//console.log()
-					//OPERATION = {$set:{Id:`${KEY_FILTER.toString()}`}}
-					//const FILTER = {Id:keyreturn}
-									
-					//mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
-					//	.then(res =>{return true})
 			
 					var retoRno = {"Status": true, "Pedido":""}
 					retoRno['Pedido'] = 'SM'+NPEDIDO 
@@ -772,4 +759,10 @@ app.post('/inserir',async (req, res)=>{
 	
 	}
 });
+
+app.post('/fechamento_caixa', async(req, res)=>{
+	console.log(req.body)
+	res.send(true)
+});
+
 
