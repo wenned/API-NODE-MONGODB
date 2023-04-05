@@ -502,6 +502,31 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 			}}
 
 			break
+		
+		case 'remover':
+
+			var ITENS_UPDATE = []
+
+			
+			try{
+				await mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:req.body[1]})
+					.then(res =>{
+						
+						for(Conte = 0; Conte < res.Itens.length; Conte++){
+							if(res.Itens[Conte] !== res.Itens[req.body[0]]){
+								ITENS_UPDATE.push(res.Itens[Conte])
+							}
+
+						}
+					})
+				console.log(ITENS_UPDATE[0])
+				//mongoose.connection.db.collection('pedidos').updateOne({Nu_Pedido:req.body[1]},{$set:{Itens:[ITENS_UPDATE]}})
+				
+			}catch(error){
+				console.log('DEU ERRO NA REMOCAO DO ITEM', error)
+			}
+			
+			break
 
 		default:
 			break
