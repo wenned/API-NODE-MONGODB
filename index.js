@@ -506,26 +506,32 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 		case 'remover':
 
 			var ITENS_UPDATE = []
+			var ITENS_PUT = []
 
 			
 			try{
 				await mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:req.body[1]})
 					.then(res =>{
-						
 						for(Conte = 0; Conte < res.Itens.length; Conte++){
-							if(res.Itens[Conte] !== res.Itens[req.body[0]]){
+							if(res.Itens[Conte] === res.Itens[req.body[0]]){
+								ITENS_PUT.push(res.Itens[Conte])
+							}else{
 								ITENS_UPDATE.push(res.Itens[Conte])
 							}
-
 						}
 					})
-				console.log(ITENS_UPDATE[0])
-				//mongoose.connection.db.collection('pedidos').updateOne({Nu_Pedido:req.body[1]},{$set:{Itens:[ITENS_UPDATE]}})
-				
+				console.log(ITENS_PUT[0])
+				mongoose.connection.db.collection('pedidos').updateOne({Nu_Pedido:req.body[1]},{$set:{Itens:ITENS_UPDATE}})
+				var resp = calcularValorTotal(ITENS_UPDATE)
+				mongoose.connection.db.collection('pedidos').updateOne({Nu_Pedido:req.body[1]},{$set:{valor_total:resp}})
+				AlteraStoque(ITENS_PUT, 1)
+
 			}catch(error){
 				console.log('DEU ERRO NA REMOCAO DO ITEM', error)
 			}
-			
+			while(ITENS_UPDATE.legth){ITENS_UPDATE.pop()};
+			while(ITENS_PUT.legth){ITENS_PUT.pop()};
+
 			break
 
 		default:
@@ -698,9 +704,33 @@ async function AlteraStoque(args, pedido=0){
 				};
 			}
 		}
+		
 		return true
+
 	}else{
+
+		if(pedido === 1){
+			for(index in args){
+				var Key = args[index]['Item']['Quantidade']
+				var Segloop = args[index]['Item']['Sabor']
+		
+				for (iteM in Segloop){
+					var VerifC = Segloop[iteM]
+	
+					for(index in RESUL){
+						if( Segloop[iteM] in RESUL[index]){
+	
+							re = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[index]['Id']})
+							var NEWVALOR = re[VerifC] + Key
+							await mongoose.connection.db.collection('estoques').updateOne({Id:RESUL[index]['Id']},{$set:{[VerifC]:NEWVALOR}})	
+						}		
+					};
+				};
+			};
+		};
+
 		if(pedido === 0){
+
 			for(index in args){
 				var Key = args[index]['Item']['Quantidade']
 				var Segloop = args[index]['Item']['Sabor']
