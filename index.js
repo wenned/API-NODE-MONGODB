@@ -147,7 +147,12 @@ app.get('/:id?/:pd?', async(req, res)=>{
 		try{
 			
 			switch(req.params.id){
-				
+				case 'caixas':
+					const Caixas = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
+					res.send(Caixas)
+
+					break
+			
 				case 'mesas':
 					const Mesas = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 					res.send(Mesas)
@@ -507,7 +512,6 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 
 			var ITENS_UPDATE = []
 			var ITENS_PUT = []
-
 			
 			try{
 				await mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:req.body[1]})
@@ -520,7 +524,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 							}
 						}
 					})
-				console.log(ITENS_PUT[0])
+
 				mongoose.connection.db.collection('pedidos').updateOne({Nu_Pedido:req.body[1]},{$set:{Itens:ITENS_UPDATE}})
 				var resp = calcularValorTotal(ITENS_UPDATE)
 				mongoose.connection.db.collection('pedidos').updateOne({Nu_Pedido:req.body[1]},{$set:{valor_total:resp}})
@@ -816,7 +820,13 @@ app.post('/inserir',async (req, res)=>{
 });
 
 app.post('/fechamento_caixa', async(req, res)=>{
-	console.log(req.body)
+
+	mongoose.connection.db.collection('caixas').insertOne(req.body)
+
+	for(valor=0; valor < req.body.Itens.length; valor++){
+		var keyRemove = req.body.Itens[valor]['Id']
+		mongoose.connection.db.collection('pedidos').deleteOne({Id:keyRemove})
+	}
 	res.send(true)
 });
 
