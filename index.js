@@ -103,14 +103,20 @@ app.get('/mesa/:Mesa?/:id?', async(req, res)=>{
 			}
 		})
 	}
+	
+	switch(req.params.id){
+		
+		case 'pagar':
+			mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{[`${req.params.Mesa}`]:"pagar"}})
+			res.json(['true'])
+			break
 
-		if(req.params.id === 'apagar'){
-
+		case 'apagar':
 			mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{[`${req.params.Mesa}`]:false}})
 			res.json(['true'])
+			break
 
-		}else{
-			
+		case 'abrir':
 			await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
 				.then(doc =>{
 					if(doc[`${req.params.Mesa}`] === false){
@@ -125,9 +131,11 @@ app.get('/mesa/:Mesa?/:id?', async(req, res)=>{
 						}
 					}			
 				})
-		}
+			break
 
-	  	
+		default:
+			break
+	};	  	
 });
 
 /* FINAL DA SESSAO DAS MESAS */
@@ -368,8 +376,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
 								}					
-							}
-	
+							}	
 						}	
 					}
 					
@@ -458,8 +465,6 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 								res.json(JSON.stringify(ress))
 
 							}
-
-
 						})
 				}
 			}catch{ err =>console.log(err)
@@ -808,14 +813,13 @@ app.post('/inserir',async (req, res)=>{
 					});
 				}
 				gravar()
-				//console.log('aqui depois do gravar', KEY_FILTER)
+
 			}else{
 				console.log('FALHA AO PRECESSAR PEDIDO')
 				//res.send(ress)
 			}
 
 		});
-	
 	}
 });
 
