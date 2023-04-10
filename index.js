@@ -162,8 +162,16 @@ app.get('/:id?/:pd?', async(req, res)=>{
 			
 			switch(req.params.id){
 				case 'caixas':
+					
+					ITENS_VERIF = []
 					const Caixas = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
-					res.send(Caixas)
+					
+					for(var ITEMF = 0; ITEMF < Caixas.length; ITEMF++){
+						if(Caixas[ITEMF]['Verificado'] === false){
+							ITENS_VERIF.push(Caixas[ITEMF])
+						}
+					}
+					res.send(ITENS_VERIF)
 
 					break
 			
