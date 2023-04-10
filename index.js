@@ -187,7 +187,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 						
 					for(var ITEM=0; ITEM < peD.length; ITEM++){
 						var keyConfi = peD[ITEM]['Data'].toISOString()
-						if(keyConfi.slice(0,10) === req.params.pd && peD[ITEM]['Itens'].length > 0){
+						if(keyConfi.slice(0,10) === req.params.pd && peD[ITEM]['Itens'].length > 0 && peD[ITEM]['Status'] === 'Finalizado'){
 							PEDIDOS_FECHAMENTO.push(peD[ITEM])
 						}
 					}
@@ -468,7 +468,6 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 							
 								res.send(true)
 
-
 							}else{
 								res.json(JSON.stringify(ress))
 
@@ -478,9 +477,6 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 			}catch{ err =>console.log(err)
 
 			}	
-			break
-
-		case 'pagar':
 			break
 
 		case 'feito':
