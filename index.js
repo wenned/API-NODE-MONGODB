@@ -116,6 +116,12 @@ app.get('/mesa/:Mesa?/:id?', async(req, res)=>{
 			res.json(['true'])
 			break
 
+		case 'deletar':
+			console.log(req.params.Mesa)
+			mongoose.connection.db.collection('pedidos').deleteOne({Nu_Pedido:req.params.Mesa})
+			res.json(['true'])
+			break
+
 		case 'abrir':
 			await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
 				.then(doc =>{
@@ -178,10 +184,10 @@ app.get('/:id?/:pd?', async(req, res)=>{
 
 					const peD = await mongoose.connection.db.collection(`pedidos`).find().toArray();
 					var PEDIDOS_FECHAMENTO = []
-					
+						
 					for(var ITEM=0; ITEM < peD.length; ITEM++){
 						var keyConfi = peD[ITEM]['Data'].toISOString()
-						if(keyConfi.slice(0,10) === req.params.pd){
+						if(keyConfi.slice(0,10) === req.params.pd && peD[ITEM]['Itens'].length > 0){
 							PEDIDOS_FECHAMENTO.push(peD[ITEM])
 						}
 					}
@@ -201,7 +207,9 @@ app.get('/:id?/:pd?', async(req, res)=>{
 		
 					var cont = false
 					var view =[]
+					
 					for(iten in schemas){
+
 						if(schemas[iten]['Status'] === 'Pendente'){
 							view.push(schemas[iten])
 						}
@@ -211,8 +219,8 @@ app.get('/:id?/:pd?', async(req, res)=>{
 					}
 
 					if(cont){
-					res.send(view)
-					cont = false
+						res.send(view)
+						cont = false
 					}else{
 						res.send(false)
 					}
@@ -763,6 +771,17 @@ async function AlteraStoque(args, pedido=0){
 	}
 };
 
+function makeid(length){
+	let result = '';
+	const characters = 'ABCDEFGHIJLMNOPQRSTUVXZWYabdcedefghijlmnopqrstuvzxyw0123456789';
+	const charactersLength = characters.length;
+	let counter = 0;
+	while (counter < length){
+		result+= characters.charAt(Math.floor(Math.random()*charactersLength));
+		counter+=1
+	}
+	return result;
+}
 
 app.post('/inserir',async (req, res)=>{
 	
@@ -773,9 +792,9 @@ app.post('/inserir',async (req, res)=>{
 	}else{
 		
 		dados.push(req.body)
-		
-		var keyreturn = 'Y'+String(Math.random()).slice(2,9);
-	
+
+		var keyreturn = makeid(17)
+
 		for(iten in dados){
 			dados[iten]['Id'] = keyreturn	
 			r = dados[iten]['valor_total'] = calcularValorTotal(dados[iten]['Itens']);
