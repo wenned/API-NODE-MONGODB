@@ -90,19 +90,8 @@ const MESAV = ['Mesa1', 'Mesa2','Mesa3','Mesa4','Mesa5','Mesa6','Mesa7','Mesa8',
 /* ROTAS DE LIBEERACAO E GERACAO DE ACESSO AS MESAS */
 
 app.get('/mesa/:Mesa?/:id?', async(req, res)=>{
-
 	
 	var resp = await insertKey(`${req.params.Mesa}`)
-	
-	const Mesa = await mongoose.connection.db.collection('mesas').find().toArray();
-	var cont=0;
-	for(var i=0; i < Mesa.length; i++){
-		Object.keys(Mesa[i]).forEach((e)=>{ 
-			if(e === MESAV[i] && Mesa[i][`${MESAV[i]}`] === false){
-				cont++
-			}
-		})
-	}
 	
 	switch(req.params.id){
 		
@@ -117,26 +106,47 @@ app.get('/mesa/:Mesa?/:id?', async(req, res)=>{
 			break
 
 		case 'deletar':
-			console.log(req.params.Mesa)
 			mongoose.connection.db.collection('pedidos').deleteOne({Nu_Pedido:req.params.Mesa})
 			res.json(['true'])
 			break
 
 		case 'abrir':
-			await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
-				.then(doc =>{
-					if(doc[`${req.params.Mesa}`] === false){
-						req.session.accessKey = accessKey;
-						res.json({accessKey})
-						mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{[`${req.params.Mesa}`]:`${accessKey}`}})
-					}else{
-						if(doc[`${req.params.Mesa}`].length > 0 && req.params.id === doc[`${req.params.Mesa}`]){
-							res.json({accessKey})
+
+			try{
+				var convr = JSON.parse(req.params.Mesa)	
+				var respp = await insertKey(`${convr[1]['Mesa']}`)
+
+				if(resp === undefined){				
+				await mongoose.connection.db.collection('mesas').findOne({Id:`${respp}`})
+					.then(doc =>{
+						if( doc[`${convr[1]['Mesa']}`] === convr[0][`accessKey`]){
+							res.json(true)
 						}else{
 							res.json(false)
-						}
-					}			
-				})
+						};
+					});
+				}			
+			
+			}catch(error){
+				if(String(error) === 'SyntaxError: Unexpected token M in JSON at position 0'){
+
+					await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
+					.then(doc =>{
+						if(doc[`${req.params.Mesa}`] === false){
+							req.session.accessKey = accessKey;
+							res.json({accessKey})
+							mongoose.connection.db.collection('mesas').updateOne({Id:`${resp}`},{$set:{[`${req.params.Mesa}`]:`${accessKey}`}})
+
+						}else{
+							if(doc[`${req.params.Mesa}`].length > 0 && req.params.id === doc[`${req.params.Mesa}`]){
+								res.json({accessKey})
+							}else{
+								res.json(false)
+							};
+						};			
+					});				
+				};
+			};
 			break
 
 		default:
