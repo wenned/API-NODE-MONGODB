@@ -171,6 +171,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 		try{
 			
 			switch(req.params.id){
+				
 				case 'caixas':
 					
 					ITENS_VERIF = []
@@ -208,8 +209,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 						if(keyConfi.slice(0,10) === req.params.pd && peD[ITEM]['Itens'].length > 0 && peD[ITEM]['Status'] === 'Finalizado'){
 							PEDIDOS_FECHAMENTO.push(peD[ITEM])
 						}
-					}
-				
+					}	
 					res.send(PEDIDOS_FECHAMENTO)
 					break
 
@@ -430,6 +430,13 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 	var DADOS_CALCULO = []
 	
 	switch(req.params.id){
+		
+		case 'verificar':
+			
+			mongoose.connection.db.collection('caixas').updateOne({Id:req.body[1]},{$set:{Verificado:true}})
+			mongoose.connection.db.collection('caixas').updateOne({Id:req.body[1]},{$set:{Verificador:req.body[0]}})
+
+			break
 
 		case 'addnew':
 
