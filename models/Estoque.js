@@ -1,9 +1,8 @@
 const mongoose = require('mongoose')
 
-const Modelo = mongoose.model('Estoque',
+const EstoqueSchema = mongoose.model('Estoque',
 	{
 	"Carne":Number,
 	"Id":String
 })
-
-module.exports = Modelo
+module.exports = mongoose.model('Modelo', EstoqueSchema)

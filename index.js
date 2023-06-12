@@ -1,13 +1,9 @@
 const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const cors = require('cors');
-const mongoose = require('mongoose')
+const cors =  require('cors');
+const mongoose = require('mongoose');
 const app = express();
-
-// models
-const Model = require('./models/Estoque')
-
 
 //Inicinando servidor
 mongoose.set('strictQuery', true);
@@ -34,10 +30,12 @@ app.use(session({
 }));
 
 app.use((req, res, next)=>{
+	
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Methods", "GET, PUT, DELETE, PATCH, OPTIONS");
 	app.use(cors());
-	next();	
+	next();
+
 })
 
 app.use(express.json());
@@ -71,7 +69,9 @@ async function insertKey(mesa){
 	
 	try{
 		var okay;
+		
 		const mesas = await mongoose.connection.db.collection('mesas').find().toArray();
+		
 		for(var i=0; i < mesas.length; i++){
 			Object.keys(mesas[i]).forEach((e)=>{
 				if(e === `${mesa}`){
@@ -80,7 +80,9 @@ async function insertKey(mesa){
 			})
 		}
 		return okay
-	}catch(err){console.log('DEU ALGUM ERRO ', err)
+
+	}catch(err){
+		console.log('DEU ALGUM ERRO ', err)
 	}
 };	
 
@@ -113,11 +115,13 @@ app.get('/mesa/:Mesa?/:id?', async(req, res)=>{
 		case 'abrir':
 
 			try{
+
 				var convr = JSON.parse(req.params.Mesa)	
 				var respp = await insertKey(`${convr[1]['Mesa']}`)
 
 				if(resp === undefined){				
-				await mongoose.connection.db.collection('mesas').findOne({Id:`${respp}`})
+				
+					await mongoose.connection.db.collection('mesas').findOne({Id:`${respp}`})
 					.then(doc =>{
 						if( doc[`${convr[1]['Mesa']}`] === convr[0][`accessKey`]){
 							res.json(true)
@@ -128,6 +132,7 @@ app.get('/mesa/:Mesa?/:id?', async(req, res)=>{
 				}			
 			
 			}catch(error){
+				
 				if(String(error) === 'SyntaxError: Unexpected token M in JSON at position 0'){
 
 					await mongoose.connection.db.collection('mesas').findOne({Id:`${resp}`})
@@ -175,22 +180,24 @@ app.get('/:id?/:pd?', async(req, res)=>{
 				case 'caixas':
 					
 					ITENS_VERIF = []
+					
 					const Caixas = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 					
 					for(var ITEMF = 0; ITEMF < Caixas.length; ITEMF++){
+						
 						if(Caixas[ITEMF]['Verificado'] === false){
 							ITENS_VERIF.push(Caixas[ITEMF])
 						}
 					}
 					res.send(ITENS_VERIF)
-
 					break
 			
 				case 'mesas':
+					
 					const Mesas = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 					res.send(Mesas)
-
 					break
+
 				case 'pedido':
 						
 					await mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:`${req.params.pd}`})
@@ -202,20 +209,22 @@ app.get('/:id?/:pd?', async(req, res)=>{
 				case 'fechamento':
 
 					const peD = await mongoose.connection.db.collection(`pedidos`).find().toArray();
+					
 					var PEDIDOS_FECHAMENTO = []
-						
+
 					for(var ITEM=0; ITEM < peD.length; ITEM++){
 						var keyConfi = peD[ITEM]['Data'].toISOString()
 						if(keyConfi.slice(0,10) === req.params.pd && peD[ITEM]['Itens'].length > 0 && peD[ITEM]['Status'] === 'Finalizado'){
 							PEDIDOS_FECHAMENTO.push(peD[ITEM])
 						}
 					}	
+					
 					res.send(PEDIDOS_FECHAMENTO)
 					break
 
 				case 'estoques':
+					
 					const schemas0 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
-
 					res.send(schemas0)
 					break
 
@@ -242,17 +251,20 @@ app.get('/:id?/:pd?', async(req, res)=>{
 					}else{
 						res.send(false)
 					}
-				
 					break
 
 				case 'menu_bebidas':
+					
 					const schemas2 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 	
 					for(item in Object.values(schemas2)){
+						
 						var es = Object.values(schemas2)[item]
 						var ess = Object.keys(es)
 						var forr = ['ja']
+						
 						for(elemento in forr) {
+							
 							var t = ess[1].split('-')	
 			
 							if(ess[1].split('-').length === 1){
@@ -278,27 +290,31 @@ app.get('/:id?/:pd?', async(req, res)=>{
 									//DADOSRETORNO.push(t)
 								}					
 							}
-	
 						}	
 					}
 					
 					res.status(200).send(DADOSRETORNO)
 					while(DADOSRETORNO.length){DADOSRETORNO.pop()}
-
 					break
 
 				case 'menu_pasteis':
+
 					const schemas3 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 					
 					for(item in Object.values(schemas3)){
+						
 						var es = Object.values(schemas3)[item]
 						var ess = Object.keys(es)
 						var forr = ['ja']
+						
 						for(elemento in forr) {
+							
 							var t = ess[1].split('-')	
 			
 							if(ess[1].split('-').length === 1){
+								
 								const re = await retornoOne(t)
+								
 								if(re === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
@@ -306,7 +322,9 @@ app.get('/:id?/:pd?', async(req, res)=>{
 							}
 
 							if(ess[1].split('-').length === 2){
+								
 								const res = await retornoTwo(t)
+								
 								if(res === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
@@ -314,33 +332,39 @@ app.get('/:id?/:pd?', async(req, res)=>{
 							}
 
 							if(ess[1].split('-').length === 3){
+								
 								const ress = await retornoTwo(t)
+								
 								if(ress === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
 								}					
 							}
-	
 						}	
 					}
 					
 					res.status(200).send(DADOSRETORNO)
 					while(DADOSRETORNO.length){DADOSRETORNO.pop()}
-
 					break
 
 				case 'menu_frances':
+
 					const schemas4 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 					
 					for(item in Object.values(schemas4)){
+						
 						var es = Object.values(schemas4)[item]
 						var ess = Object.keys(es)
 						var forr = ['ja']
+						
 						for(elemento in forr) {
+							
 							var t = ess[1].split('-')	
 			
 							if(ess[1].split('-').length === 1){
+								
 								const re = await retornoOne(t)
+								
 								if(re === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
@@ -348,7 +372,9 @@ app.get('/:id?/:pd?', async(req, res)=>{
 							}
 
 							if(ess[1].split('-').length === 2){
+								
 								const res = await retornoTwo(t)
+								
 								if(res === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
@@ -356,13 +382,14 @@ app.get('/:id?/:pd?', async(req, res)=>{
 							}
 
 							if(ess[1].split('-').length === 3){
+								
 								const ress = await retornoTwo(t)
+								
 								if(ress === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
 								}					
 							}
-	
 						}	
 					}
 					
@@ -371,17 +398,23 @@ app.get('/:id?/:pd?', async(req, res)=>{
 					break
 
 				case 'menu_suicos':
+					
 					const schemas5 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
 					
 					for(item in Object.values(schemas5)){
+						
 						var es = Object.values(schemas5)[item]
 						var ess = Object.keys(es)
 						var forr = ['ja']
+						
 						for(elemento in forr) {
+							
 							var t = ess[1].split('-')	
 			
 							if(ess[1].split('-').length === 1){
+								
 								const re = await retornoOne(t)
+								
 								if(re === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
@@ -389,7 +422,9 @@ app.get('/:id?/:pd?', async(req, res)=>{
 							}
 
 							if(ess[1].split('-').length === 2){
+								
 								const res = await retornoTwo(t)
+								
 								if(res === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
@@ -397,7 +432,9 @@ app.get('/:id?/:pd?', async(req, res)=>{
 							}
 
 							if(ess[1].split('-').length === 3){
+								
 								const ress = await retornoTwo(t)
+								
 								if(ress === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
@@ -411,18 +448,18 @@ app.get('/:id?/:pd?', async(req, res)=>{
 					break
 
 				case 'menu_hamburgues':
+					
 					const schemas6 = await mongoose.connection.db.collection().find(`${req.params.id}`).toArray();
 					break
 				
 				default:
 					break
-
 			}
 
 		}catch(err){
 			res.send('Server error', err)
-		}
-	}
+		};
+	};
 });
 
 app.put('/input/:id?/:nu?', async (req, res)=>{
@@ -712,11 +749,39 @@ async function CalculoStoque(args){
 
 }
 
+//FUNCAO PARA REMOCAO DE ADICIONAIS EM PEDIDOS
+
+async function removerAdicional(...args){
+		
+	var RESUL = mongoose.connection.db.collection('estoques').find().toArray();
+		
+	var itensEstoque = await mongoose.connection.db.collection('estoques').find().toArray();
+
+	if(args[0].length > 0){
+		
+		for (var rd=0; rd < args[0].length; rd++){
+			
+			var itemadicional = args[0][rd]
+
+			for(indeX in RESUL){
+	
+				if(itemadicional in RESUL[indeX]){
+					var re = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[indeX]['Id']})
+			
+					if(re[itemadicional] >= 1 === true){
+						var NOVOVALOR = re[itemadicional] - 1
+						console.log(itemadicional, RESUL[indeX]['Id'])
+						mongoose.connection.db.collection('estoques').updateOne({Id:re.Id},{$set:{[itemadicional]:NOVOVALOR}})
+					}	
+				}		
+			};
+		}
+	}
+}
+
 
 async function AlteraStoque(args, pedido=0){
 	
-	const RESUL = await mongoose.connection.db.collection('estoques').find().toArray();
-
 	if(pedido.length > 2){
 
 		for(var t=0; t < args.length; t++){
@@ -741,8 +806,7 @@ async function AlteraStoque(args, pedido=0){
 					};
 				};
 			}
-		}
-		
+		}	
 		return true
 
 	}else{
@@ -768,21 +832,27 @@ async function AlteraStoque(args, pedido=0){
 		};
 
 		if(pedido === 0){
-
-			for(index in args){
-				var Key = args[index]['Item']['Quantidade']
-				var Segloop = args[index]['Item']['Sabor']
-		
+			
+			for(indEx in args){
+				var Key = args[indEx]['Item']['Quantidade']
+				var Segloop = args[indEx]['Item']['Sabor']
+				
 				for (iteM in Segloop){
 					var VerifC = Segloop[iteM]
-	
+
 					for(index in RESUL){
+						
 						if( Segloop[iteM] in RESUL[index]){
 	
 							re = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[index]['Id']})
 							if(re[VerifC] >= Key === true){
 								var NEWVALOR = re[VerifC] - Key
+								
 								await mongoose.connection.db.collection('estoques').updateOne({Id:RESUL[index]['Id']},{$set:{[VerifC]:NEWVALOR}})
+
+								if(Number(iteM) === 0){
+									removerAdicional(args[indEx]['Item']['Adicional'])
+								}
 							}	
 						}		
 					};
@@ -829,8 +899,9 @@ app.post('/inserir',async (req, res)=>{
 			
 				var KEY_FILTER;
 				var NPEDIDO;
-				AlteraStoque(req.body.Itens)
 				
+				AlteraStoque(req.body.Itens)
+
 				for(uti in req.body.Itens){
 					dados[0]['Itens'][uti]['Item']['Status'][1] = "true"
 				}
@@ -840,6 +911,7 @@ app.post('/inserir',async (req, res)=>{
 				while(dados.length){ dados.pop();}
 
 				async function gravar(){
+					
 					await mongoose.connection.db.collection('numero_pedido').find().toArray()
 					.then(ress =>{
 						NPEDIDO = ress[0]['Nu_pedido']+1
