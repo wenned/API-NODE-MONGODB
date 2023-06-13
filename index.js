@@ -5,6 +5,9 @@ const cors =  require('cors');
 const mongoose = require('mongoose');
 const app = express();
 
+// Modulos proprietarios
+const makeid = require('./geradorId')
+
 //Inicinando servidor
 mongoose.set('strictQuery', true);
 
@@ -845,34 +848,24 @@ async function AlteraStoque(args, pedido=0){
 						if( Segloop[iteM] in RESUL[index]){
 	
 							re = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[index]['Id']})
+							
 							if(re[VerifC] >= Key === true){
+								
 								var NEWVALOR = re[VerifC] - Key
 								
 								await mongoose.connection.db.collection('estoques').updateOne({Id:RESUL[index]['Id']},{$set:{[VerifC]:NEWVALOR}})
 
 								if(Number(iteM) === 0){
 									removerAdicional(args[indEx]['Item']['Adicional'])
-								}
-							}	
-						}		
+								};
+							};	
+						};		
 					};
 				};
 			};
-		}
-	}
+		};
+	};
 };
-
-function makeid(length){
-	let result = '';
-	const characters = 'ABCDEFGHIJLMNOPQRSTUVXZWYabdcedefghijlmnopqrstuvzxyw0123456789';
-	const charactersLength = characters.length;
-	let counter = 0;
-	while (counter < length){
-		result+= characters.charAt(Math.floor(Math.random()*charactersLength));
-		counter+=1
-	}
-	return result;
-}
 
 app.post('/inserir',async (req, res)=>{
 	
