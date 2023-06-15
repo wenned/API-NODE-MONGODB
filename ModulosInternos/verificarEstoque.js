@@ -3,32 +3,37 @@ mongoose.set('strictQuery', true);
 const connect = require('../conectMongo');
 
 async function ResultEstoque(key, valor) {
-  try {
-    const connection = await connect;
-    const result = await connection.db.collection('estoques').find().toArray();
+
+		try {
+
+			const connection = await connect;
+			const result = await connection.db.collection('estoques').find().toArray();
     
-	for (let index in result) {
-      if (key in result[index]) {
-        const re = await connection.db.collection('estoques').findOne({ Id: result[index]['Id'] });
-        if (re[key] >= valor) {
-          return { "Sabor": key, "Quantidade": true };
-        } else {
-          return { "Sabor": key, "Quantidade": false };
-        }
-      }
-    }
-  } catch (err) {
-    console.log('Erro ao processar verificacao de estoque', err);
-  }
-}
+			for (let index in result) {
+				if (key in result[index]) {
+					const re = await connection.db.collection('estoques').findOne({ Id: result[index]['Id'] });
+					if (re[key] >= valor) {
+						return { "Sabor": key, "Quantidade": true };
+					} else {
+						return { "Sabor": key, "Quantidade": false };
+					}
+				}
+			}
+		} catch (err) {
+			console.log('Erro ao processar verificacao de estoque', err);
+		}
+};
 
 async function CalculoStoque(args) {
   
 	const DICE_$ = [];
+	
 	try {
 		for (let index in args) {
+			
 			const Key = args[index]['Item']['Quantidade'];
 			const looP = args[index]['Item']['Sabor'];
+			
 			for (let item in looP) {
 				switch (looP[item]) {
 					case 'Carne':
@@ -76,4 +81,3 @@ async function CalculoStoque(args) {
 }
 
 module.exports = { ResultEstoque, CalculoStoque };
-

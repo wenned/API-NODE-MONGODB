@@ -5,13 +5,10 @@ const cors =  require('cors');
 const mongoose = require('mongoose');
 const app = express();
 
-// Modulos proprietarios
-const makeid = require('./geradorId')
-
 //Inicinando servidor
 mongoose.set('strictQuery', true);
-
 const connect = require('./conectMongo')
+
 connect.on('connected', async ()=>{
 	
 	try{
@@ -22,14 +19,19 @@ connect.on('connected', async ()=>{
 	}
 })
 
+// Modulos proprietarios
+
+const makeid = require('./geradorId')
+const { ResultEstoque, CalculoStoque } = require('./ModulosInternos/verificarEstoque')
+const { retornoOne,retornoTwo } = require('./ModulosInternos/bebidas')
+//const removerADicional = require('./removerAdicional')
+
 app.use(cookieParser());
 
 app.use(session({
-
 	secret:'SABORMINEIRO',
 	resave: false,
 	saveUninitialized: true
-
 }));
 
 app.use((req, res, next)=>{
@@ -46,27 +48,6 @@ app.use(express.json());
 app.listen(8080, ()=>{
 	console.log('Servidor iniciado na porta 8080')
 });
-
-async function retornoOne(a){
-	
-	var res = await mongoose.connection.db.collection('estoques').findOne({[a]:{$gt:0}})
-	if(res === null){
-	}else{
-		return true
-	}
-};
-
-async function retornoTwo(b){
-
-	var cont=0;
-	for(item in b){
-		var res = await mongoose.connection.db.collection('estoques').findOne({[b[item]]:{$gt:0}})
-		if(res === null){
-			cont++
-		}
-	}
-	if(cont === 0){return true}
-};
 
 async function insertKey(mesa){
 	
@@ -303,7 +284,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 				case 'menu_pasteis':
 
 					const schemas3 = await mongoose.connection.db.collection(`${req.params.id}`).find().toArray();
-					
+						
 					for(item in Object.values(schemas3)){
 						
 						var es = Object.values(schemas3)[item]
@@ -313,11 +294,11 @@ app.get('/:id?/:pd?', async(req, res)=>{
 						for(elemento in forr) {
 							
 							var t = ess[1].split('-')	
-			
+								
 							if(ess[1].split('-').length === 1){
-								
+	
 								const re = await retornoOne(t)
-								
+
 								if(re === true){
 									DADOSRETORNO.push(es)
 									//DADOSRETORNO.push(t)
@@ -460,7 +441,7 @@ app.get('/:id?/:pd?', async(req, res)=>{
 			}
 
 		}catch(err){
-			res.send('Server error', err)
+			res.status(500).send('Server error', err)
 		};
 	};
 });
@@ -492,7 +473,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 
 					await CalculoStoque(DADOS_CALCULO)
 						.then((ress)=>{
-													
+							
 							if(ress === true){
 								AlteraStoque(req.body.Itens, req.body.Nu_Pedido)
 								
@@ -524,6 +505,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 										}
 
 										for(g in ItensTrue){
+											
 											if(ItensTrue[g]['Item']['Status'][1] === "false" ){
 												ItensTrue[g]['Item']['Status'][1] = "true"
 											}
@@ -560,6 +542,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 						const OPERATION = {$set:{Itens:UPDATE_fild}}
 						const FILTER = {Nu_Pedido:req.body.codigo}
 						mongoose.connection.db.collection('pedidos').updateOne(FILTER, OPERATION)
+						
 						while(UPDATE_fild.legth){UPDATE_fild.pop()};
 						
 						var cont=0
@@ -569,6 +552,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 						}
 												
 						if (cont == UPDATE_$.length){
+							
 							const operation = {$set:{Status:"Finalizado"}}
 							const filter = {Nu_Pedido:req.body.codigo}
 							mongoose.connection.db.collection('pedidos').updateOne(filter, operation)
@@ -590,6 +574,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 			try{
 				await mongoose.connection.db.collection('pedidos').findOne({Nu_Pedido:req.body[1]})
 					.then(res =>{
+						
 						for(Conte = 0; Conte < res.Itens.length; Conte++){
 							if(res.Itens[Conte] === res.Itens[req.body[0]]){
 								ITENS_PUT.push(res.Itens[Conte])
@@ -607,6 +592,7 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 			}catch(error){
 				console.log('DEU ERRO NA REMOCAO DO ITEM', error)
 			}
+			
 			while(ITENS_UPDATE.legth){ITENS_UPDATE.pop()};
 			while(ITENS_PUT.legth){ITENS_PUT.pop()};
 
@@ -620,144 +606,18 @@ app.put('/input/:id?/:nu?', async (req, res)=>{
 function calcularValorTotal(args){
 
 	var soma=0;
+	
 	for (iten in args){
 		soma = soma + (args[iten]['Item']['Quantidade'] * args[iten]['Item']['Valor'])
 	};
 	return soma.toFixed(2);
 };
 
-
-async function ResultEstoque(key,valor){
-		
-	try{
-		const RESULT = await mongoose.connection.db.collection('estoques').find().toArray();
-	
-		for(index in RESULT){
-			if(key in RESULT[index]){
-	
-				re = await mongoose.connection.db.collection('estoques').findOne({Id:RESULT[index]['Id']})
-				if(re[key] >= valor === true){
-					return {"Sabor":key, "Quantidade":true}
-				}else{
-					return {"Sabor":key, "Quantidade":false}
-				}
-			}		
-		};
-
-	}catch(err){
-		return ('Erro ao processar verificacao de estoque', err)
-	}
-};
-
-async function CalculoStoque(args){
-
-	DICE_$ = []
-	for(index in args){
-
-			Key = args[index]['Item']['Quantidade']
-			var looP = args[index]['Item']['Sabor']
-			
-			for(item in looP){
-	
-				switch(looP[item]){
-
-					case 'Carne':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-	
-					case 'Carne-sol':	
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Queijo':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Frango':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Presunto':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Bacon':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Cheddar':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Catupiry':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Calabresa':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Salsicha':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Chocolate':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Goiabada':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Banana':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Canela':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Palmito':						
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					case 'Azeitona':
-						DICE_$.push(await ResultEstoque(looP[item], Key))
-						break
-
-					default:
-						break
-			}
-		}
-	}
-
-	var cont = true
-	var returnFalse = []	
-	
-	for(ind in DICE_$){
-		if(DICE_$[ind]['Quantidade'] === false ){
-			returnFalse.push(DICE_$[ind])
-			cont = false
-		}
-	}
-
-	if(cont === false){
-		return returnFalse
-		while(DICE_$.length){DICE_$.pop()}
-		while(returnFalse.length){returnFalse.pop()}
-
-	}else{
-		return true
-	}
-
-}
-
 //FUNCAO PARA REMOCAO DE ADICIONAIS EM PEDIDOS
 
 async function removerAdicional(...args){
 		
 	var RESUL = mongoose.connection.db.collection('estoques').find().toArray();
-		
 	var itensEstoque = await mongoose.connection.db.collection('estoques').find().toArray();
 
 	if(args[0].length > 0){
@@ -769,21 +629,24 @@ async function removerAdicional(...args){
 			for(indeX in RESUL){
 	
 				if(itemadicional in RESUL[indeX]){
+					
 					var re = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[indeX]['Id']})
 			
 					if(re[itemadicional] >= 1 === true){
 						var NOVOVALOR = re[itemadicional] - 1
 						console.log(itemadicional, RESUL[indeX]['Id'])
 						mongoose.connection.db.collection('estoques').updateOne({Id:re.Id},{$set:{[itemadicional]:NOVOVALOR}})
-					}	
-				}		
+					};	
+				};		
 			};
-		}
-	}
-}
+		};
+	};
+};
 
 
 async function AlteraStoque(args, pedido=0){
+
+	const RESUL = await mongoose.connection.db.collection('estoques').find().toArray();	
 	
 	if(pedido.length > 2){
 
@@ -797,38 +660,44 @@ async function AlteraStoque(args, pedido=0){
 					var VeriC = Segloo[IteM]
 	
 					for(inDex in RESUL){
+						
 						if( Segloo[IteM] in RESUL[inDex]){
 	
 							ress = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[inDex]['Id']})
+							
 							if(ress[VeriC] >= KeY === true){
 			
 								var NEWVALO = ress[VeriC] - KeY
 								await mongoose.connection.db.collection('estoques').updateOne({Id:RESUL[inDex]['Id']},{$set:{[VeriC]:NEWVALO}})
-							}	
-						}		
+							};	
+						};		
 					};
 				};
-			}
-		}	
+			};
+		};	
 		return true
 
 	}else{
 
 		if(pedido === 1){
+			
 			for(index in args){
+				
 				var Key = args[index]['Item']['Quantidade']
 				var Segloop = args[index]['Item']['Sabor']
 		
 				for (iteM in Segloop){
+					
 					var VerifC = Segloop[iteM]
 	
 					for(index in RESUL){
+						
 						if( Segloop[iteM] in RESUL[index]){
 	
 							re = await mongoose.connection.db.collection('estoques').findOne({Id:RESUL[index]['Id']})
 							var NEWVALOR = re[VerifC] + Key
 							await mongoose.connection.db.collection('estoques').updateOne({Id:RESUL[index]['Id']},{$set:{[VerifC]:NEWVALOR}})	
-						}		
+						};		
 					};
 				};
 			};
@@ -837,6 +706,7 @@ async function AlteraStoque(args, pedido=0){
 		if(pedido === 0){
 			
 			for(indEx in args){
+				
 				var Key = args[indEx]['Item']['Quantidade']
 				var Segloop = args[indEx]['Item']['Sabor']
 				
@@ -882,12 +752,11 @@ app.post('/inserir',async (req, res)=>{
 		for(iten in dados){
 			dados[iten]['Id'] = keyreturn	
 			r = dados[iten]['valor_total'] = calcularValorTotal(dados[iten]['Itens']);
-		
 		}
 
 		await CalculoStoque(req.body.Itens)
 		.then((ress)=>{
-			
+			console.log(ress)
 			if(ress === true){
 			
 				var KEY_FILTER;
@@ -916,16 +785,15 @@ app.post('/inserir',async (req, res)=>{
 					retoRno['Pedido'] = 'SM'+NPEDIDO 
 					res.send(JSON.stringify(retoRno))
 					});
-				}
+				};
 				gravar()
 
 			}else{
 				console.log('FALHA AO PRECESSAR PEDIDO')
 				//res.send(ress)
-			}
-
+			};
 		});
-	}
+	};
 });
 
 app.post('/fechamento_caixa', async(req, res)=>{
@@ -938,5 +806,3 @@ app.post('/fechamento_caixa', async(req, res)=>{
 	}
 	res.send(true)
 });
-
-

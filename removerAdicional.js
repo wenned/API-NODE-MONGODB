@@ -1,19 +1,20 @@
-// Modulo de removocao de adicional!
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+mongoose.set('strictQuery', true);
+const connect = require('./conectMongo');
 
-async function removerADicional(...args){
-	const [itens, conexao] = args
-	
-	await conexao.connect()
-	//const itensEstoque = await conexao.connection.db.collection('estoques').find().toArray();
-	//console.log(itensEstoque)
-	if(args[0].length > 99999){
-	
-		for(index in args[0]){
-			console.log(args[0][index])
-		}
-	}
-	
+async function removerADicional(...args) {
+  
+	console.log(args)
+	connect.on('open', async ()=>{
+		try {
+			const mesas = await mongoose.connection.db.collection('mesas').find().toArray();
+			console.log(mesas);
+			mongoose.connection.close();
+			} catch (err) {
+				console.log(err);
+				}
+	})
 }
 
 module.exports = removerADicional;
+
