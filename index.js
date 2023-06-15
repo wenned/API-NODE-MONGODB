@@ -634,7 +634,6 @@ async function removerAdicional(...args){
 			
 					if(re[itemadicional] >= 1 === true){
 						var NOVOVALOR = re[itemadicional] - 1
-						console.log(itemadicional, RESUL[indeX]['Id'])
 						mongoose.connection.db.collection('estoques').updateOne({Id:re.Id},{$set:{[itemadicional]:NOVOVALOR}})
 					};	
 				};		
@@ -756,7 +755,6 @@ app.post('/inserir',async (req, res)=>{
 
 		await CalculoStoque(req.body.Itens)
 		.then((ress)=>{
-			console.log(ress)
 			if(ress === true){
 			
 				var KEY_FILTER;
