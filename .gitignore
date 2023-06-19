@@ -99,7 +99,7 @@ dist
 
 # DynamoDB Local files
 .dynamodb/
-conectMongo.js
-conect_Mongo.js
+src/conectMongo.js
+
 # TernJS port file
 .tern-port
