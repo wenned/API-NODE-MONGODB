@@ -1,8 +1,23 @@
 import { Router } from 'express';
-import inserirPedido from './inserirPedido.js'
+import home from './Home/home.js'
+import inserirPedido from './ModulosInternos/inserirPedido.js'
+import getInformacao from './ModulosInternos/informacao.js'
+import entradaSaida from './ModulosInternos/entradaSaida.js'
+import alteracaoPedido from './ModulosInternos/alteracaoInformacoes.js'
+import {fecharCaixa, conferirCaixa} from './ModulosInternos/fechamentoCaixa.js'
 
 const rotas = Router();
 
-rotas.post('/inserir', inserirPedido)
+//Rotas de I/O
+rotas.post('/inserir', inserirPedido) //FASE TEST
+rotas.put('/mesa/:Mesa?/:Id?', entradaSaida) //EM DESENVOLVIMENTO
+rotas.put('/entrada/:Id?/:Nu?', alteracaoPedido) //EM DESENVOLVIMENTO
+
+// Rotas de Fechamento de Caixa
+rotas.post('/fechamento_caixa', fecharCaixa) // EM DESENVOLVIMENTO
+
+// Rotas de Informacoes
+rotas.get('/', home) // FASE TESTE
+rotas.get('/:Id?/:Pedido?', getInformacao) //EM DESENVOLVIMENTO
 
 export default rotas;
