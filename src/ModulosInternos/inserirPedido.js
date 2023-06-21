@@ -28,12 +28,15 @@ async function inserirPedido(req, res){
 			}
 			
 			const NuPedido = await nuPedido.findById('63fa6fe096ec286fca8578a5')
+		
+			dados[0]['Nu_Pedido'] =	'SM' + (NuPedido.Nu_pedido + 1)
 			
-			dados[0]['Nu_Pedido'] = 'SM' + (NuPedido.Nu_pedido + 1)
-			
+			const newPedido = NuPedido.Nu_pedido + 1
+			await nuPedido.updateOne({'_id':'63fa6fe096ec286fca8578a5'},{'Nu_pedido':newPedido})
+	
 			const Gravar = await Pedido.create(dados[0])
 			
-			console.log(Gravar)
+			res.send(Gravar)
 		};
 	};
 };
