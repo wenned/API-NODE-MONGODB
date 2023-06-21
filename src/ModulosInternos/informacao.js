@@ -13,14 +13,33 @@ async function getInformacao (req, res) {
 
 	try{
 
-		switch(req.params.Menu){
+		switch(req.params.Info){
 
-				case 'pedido':
-						
-					const getPedidos = await Pedido.find()
-					res.send(getPedidos)
+				case 'pedidosFeito':
+			
+					const getFeito = await Pedido.find();
+		
+					var cont = false
+					var view =[]
+		
+					for(var Iten=0; Iten < getFeito.length; Iten++){
+			
+						if(getFeito[Iten]['Status'] === 'Finalizado'){
+							view.push(getFeito[Iten])
+						}
+						if(view.length === 1){
+							cont = true;
+						}
+					}
+
+					if(cont){
+						res.send(view)
+						cont = false
+
+					}else{ res.send(false) }
+
 					break
-	
+				
 				case 'mesas':
 					
 					const getMesas = await Mesas.find();
@@ -34,7 +53,7 @@ async function getInformacao (req, res) {
 					res.send(getEstoque)
 					break
 
-				case 'pedidos':
+				case 'pedidosPendente':
 		
 					const schemas = await Pedido.find();
 		
