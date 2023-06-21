@@ -11,7 +11,7 @@ const rotas = Router();
 //Rotas de I/O
 rotas.post('/inserir', inserirPedido) //FASE TEST
 rotas.put('/mesa/:Mesa?/:Id?', entradaSaida) //EM DESENVOLVIMENTO
-rotas.put('/entrada/:Id?/:Nu?', alteracaoPedido) //EM DESENVOLVIMENTO
+rotas.put('/entrada/:Funcao?', alteracaoPedido) //FASE DE INTEGRACAO COM FONT-END
 
 // Rotas de Fechamento de Caixa
 rotas.post('/fechamento_caixa', fecharCaixa) // EM DESENVOLVIMENTO
