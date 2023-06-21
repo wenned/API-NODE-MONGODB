@@ -18,6 +18,6 @@ rotas.post('/fechamento_caixa', fecharCaixa) // EM DESENVOLVIMENTO
 
 // Rotas de Informacoes
 rotas.get('/', home) // FASE TESTE
-rotas.get('/:Id?/:Pedido?', getInformacao) //EM DESENVOLVIMENTO
+rotas.get('/:Menu?', getInformacao) // FASE TESTE
 
 export default rotas;
