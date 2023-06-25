@@ -14,6 +14,17 @@ async function getInformacao (req, res) {
 	try{
 
 		switch(req.params.Info){
+				
+				case 'pedidoUnico':
+					
+					try{
+						const getPedidoUnico = await Pedido.findOne({Nu_Pedido:req.params.Mesa});
+						res.status(201).json(getPedidoUnico)
+					}catch(err){
+						res.status(500).send(false)
+					}
+
+					break
 
 				case 'pedidosFeito':
 			
@@ -41,10 +52,16 @@ async function getInformacao (req, res) {
 					break
 				
 				case 'mesas':
-					
+		
 					const getMesas = await Mesas.find();
 					res.send(getMesas)
 
+					break
+				
+				case 'Mesa':
+					
+					const getUnica = await Mesas.find({'Nome':req.params.Mesa})
+					res.status(201).json(getUnica)
 					break
 	
 				case 'estoque':
@@ -102,7 +119,7 @@ async function getInformacao (req, res) {
 					res.status(200).send(getSuico)
 					break
 
-				case 'menu_hamburgues':
+				case 'menu_hamburgues': //EM DESEMVOLVIMENTO
 					
 					const getHamburgue = await MHamburguer.find();
 					res.status(200).send(getHamburgue)

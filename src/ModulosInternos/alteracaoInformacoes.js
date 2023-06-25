@@ -1,8 +1,10 @@
-const accessKey = Math.random().toString(36).substring(2,15)
+import Mesas from '../models/Mesas.js'
+
+const  accessKey = Math.random().toString(36).substring(2,15)
 
 async function alteracaoPedido (req, res) {
 
-	const {Funcao, Chave} = req.params
+	const { Funcao } = req.params
 	const info = req.body
 
 	switch(Funcao){
@@ -10,7 +12,37 @@ async function alteracaoPedido (req, res) {
 		case 'alterarStatusMesa':
 			
 			try{
-				res.status(201).send(true)
+				
+				switch(info[0]['Operacao']){
+
+					case 0:
+						
+						await Mesas.updateOne({'_id':info[0]['Id']},{'Estado':0})
+						await Mesas.updateOne({'_id':info[0]['Id']},{'Chave':""})
+						res.status(201).send(true)
+						break
+
+					case 1:	
+						await Mesas.updateOne({'Nome':info[0]['Id']},{'Estado':1})
+						await Mesas.updateOne({'Nome':info[0]['Id']},{'Chave': accessKey})
+						res.status(201).json(accessKey)	
+						break
+
+					case 2:
+						
+						await Mesas.updateOne({'_id':info[0]['Id']},{'Estado':2})
+						await Mesas.updateOne({'_id':info[0]['Id']},{'Chave':""})
+						res.status(201).send(true)
+					
+						res.status(201).send(true)
+				
+						break
+
+					default:
+						break
+
+				}
+
 			}catch(err){
 				res.status(500).send('ERRO AO ALTERA STATUS MESA' + err);
 			}

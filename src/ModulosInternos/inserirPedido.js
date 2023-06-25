@@ -6,7 +6,7 @@ import {calcularValorTotal, CalculoStoque, ResultEstoque} from './verificarEstoq
 async function inserirPedido(req, res){
 	
 	var dados = []
-
+	
 	if(Object.keys(req.body).length === 0){
 		//
 	}else{
@@ -35,8 +35,8 @@ async function inserirPedido(req, res){
 			await nuPedido.updateOne({'_id':'63fa6fe096ec286fca8578a5'},{'Nu_pedido':newPedido})
 	
 			const Gravar = await Pedido.create(dados[0])
-			
-			res.send(Gravar)
+
+			res.status(201).json(Gravar)
 		};
 	};
 };
