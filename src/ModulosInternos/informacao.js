@@ -59,7 +59,7 @@ async function getInformacao (req, res) {
 					break
 				
 				case 'Mesa':
-					
+				
 					const getUnica = await Mesas.find({'Nome':req.params.Mesa})
 					res.status(201).json(getUnica)
 					break

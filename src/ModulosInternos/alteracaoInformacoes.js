@@ -32,10 +32,7 @@ async function alteracaoPedido (req, res) {
 						
 						await Mesas.updateOne({'_id':info[0]['Id']},{'Estado':2})
 						await Mesas.updateOne({'_id':info[0]['Id']},{'Chave':""})
-						res.status(201).send(true)
-					
-						res.status(201).send(true)
-				
+						res.status(201).send(true)	
 						break
 
 					default:
