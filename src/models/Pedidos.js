@@ -1,14 +1,14 @@
 import mongoose from 'mongoose'
 
 const ItemSchema = new mongoose.Schema({
-	Item:{
-		Sabor: [String],
-		Valor: Number,
-		Quantidade: Number,
-		Tipo: String,
-		Status: [String],
-		Adicional: [String]
-	}
+  Item: {
+    Sabor: [String],
+    Valor: Number,
+    Quantidade: Number,
+    Tipo: String,
+    Status:[String],
+    Adicional: [String]
+  }
 });
 
 const Mpedido = new mongoose.Schema(
