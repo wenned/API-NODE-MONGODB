@@ -1,5 +1,8 @@
 import Mesas from '../models/Mesas.js'
 import Pedido from '../models/Pedidos.js'
+import AlteraStoque from './alterarEstoque.js'
+import {calcularValorTotal, CalculoStoque} from './verificarEstoque.js'
+
 
 const  accessKey = Math.random().toString(36).substring(2,15)
 
@@ -73,21 +76,36 @@ async function alteracaoPedido (req, res) {
 		case 'inserirItemPedido':
 
 			try{
-				res.status(201).send(true)
+				const ItensCal = []
+				const valorTotal = await calcularValorTotal(info.Itens);
+					
+				for(var index=0; index < info.Itens.length; index++){
+					if(info.Itens[index]['Item']['Status'][1] === "false"){
+						ItensCal.push(info.Itens[index])
+					}
+				}	
+				
+				const retorno = await CalculoStoque(ItensCal)
+
+				if(retorno === true){
+					await Pedido.updateOne({_id:info.Id},{'valor_total':valorTotal}) 
+					await AlteraStoque(ItensCal)
+					
+					for(var iNdex=0; iNdex < ItensCal.length; iNdex++){
+						ItensCal[iNdex]['Item']['Status'][1] =  "true"
+					}
+			
+					for(var Index=0; Index < ItensCal.length; Index++){
+						await Pedido.update({_id:info.Id},{$push:{Itens:ItensCal[Index]}})
+					}
+					await Pedido.updateOne({_id:info.Id},{'Status':"Pendente"})
+				}			
+				res.status(201).send(ItensCal)
 			}catch(err){
 				res.status(500).send('ERRO AO INSERIR NOVO ITEM AO PEDIDO' + err);
 			}		
 			break
-
-		case 'alterarItemPedido':
-				
-			try{
-				res.status(201).send(true)
-			}catch(err){
-				res.status(500).send('ERRO AO ALTERAR ITEM DO PEDIDO' + err);
-			}	
-			break
-		
+	
 		case 'removerItemPedido':
 			
 			try{
