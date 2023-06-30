@@ -14,4 +14,19 @@ async function AlteraStoque(...args){
 	}
 };
 
-export default AlteraStoque;
+async function retornaEstoque(...args){
+
+	for(var Index=0; Index < args[0].length; Index++){
+
+		const sabor =  	args[0][Index]['Item']['Sabor']
+
+		for(var Item=0; Item < sabor.length; Item++){
+			const ItemEstoque = await Estoque.findOne({Tipo:sabor[Item]});
+			const newQuantidade = ItemEstoque.Quantidade + args[0][Index]['Item']['Quantidade']
+			await Estoque.updateOne({Tipo:sabor[Item]}, {Quantidade:newQuantidade})
+		}
+	}
+};
+
+
+export {AlteraStoque, retornaEstoque};

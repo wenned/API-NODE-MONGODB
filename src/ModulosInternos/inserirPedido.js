@@ -1,6 +1,6 @@
 import Pedido from '../models/Pedidos.js'
 import nuPedido from '../models/nuPedido.js'
-import AlteraStoque from './alterarEstoque.js'
+import {AlteraStoque} from './alterarEstoque.js'
 import {calcularValorTotal, CalculoStoque, ResultEstoque} from './verificarEstoque.js'
 
 async function inserirPedido(req, res){

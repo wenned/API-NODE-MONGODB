@@ -1,6 +1,6 @@
 import Mesas from '../models/Mesas.js'
 import Pedido from '../models/Pedidos.js'
-import AlteraStoque from './alterarEstoque.js'
+import {AlteraStoque, retornaEstoque} from './alterarEstoque.js'
 import {calcularValorTotal, CalculoStoque} from './verificarEstoque.js'
 
 
@@ -76,6 +76,7 @@ async function alteracaoPedido (req, res) {
 		case 'inserirItemPedido':
 
 			try{
+				
 				const ItensCal = []
 				const valorTotal = await calcularValorTotal(info.Itens);
 					
@@ -84,7 +85,7 @@ async function alteracaoPedido (req, res) {
 						ItensCal.push(info.Itens[index])
 					}
 				}	
-				
+			
 				const retorno = await CalculoStoque(ItensCal)
 
 				if(retorno === true){
@@ -109,6 +110,25 @@ async function alteracaoPedido (req, res) {
 		case 'removerItemPedido':
 			
 			try{
+				
+				const ItensCalc = []
+
+				const getPedidO = await Pedido.findById(info.Id)				
+				ItensCalc.push(getPedidO.Itens[info.Index])
+				await  retornaEstoque(ItensCalc)
+//				await Pedido.updateMany({_id: info.Id}, { $pull: { Itens: { _id: ItensCalc[0]['_id'] } } });
+				await Pedido.update({_id: info.Id}, { $pull: { Itens: { _id: ItensCalc[0]['_id'] } } }, {upsert: false});
+				
+				const getPedid = await Pedido.findById(info.Id)
+				const valorTotal = await calcularValorTotal(getPedid.Itens);
+				await Pedido.updateOne({_id:info.Id},{'valor_total':valorTotal}) 
+				
+				const removerPedido = await Pedido.findById(info.Id)
+
+				if(removerPedido.valor_total === 0){
+					await Pedido.deleteOne({_id:info.Id},{})
+				}
+
 				res.status(201).send(true)
 			}catch(err){
 				res.status(500).send('ERRO AO REMOVER ITEM DO PEDIDO' + err);
