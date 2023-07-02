@@ -8,15 +8,15 @@ import {fecharCaixa, conferirCaixa} from './ModulosInternos/fechamentoCaixa.js'
 const rotas = Router();
 
 //Rotas de I/O
-rotas.post('/inserir', inserirPedido) //FASE TEST
-rotas.put('/entrada/:Funcao?', alteracaoPedido) //FASE DE INTEGRACAO COM FONT-END
+rotas.post('/inserir', inserirPedido) //FASE REMOCAO ADICIONAL
+rotas.put('/entrada/:Funcao?', alteracaoPedido)
 
 // Rotas de Fechamento de Caixa
 rotas.post('/fechamento_caixa', fecharCaixa) // EM DESENVOLVIMENTO
 rotas.put('/fechamento_caixa', conferirCaixa) // EM DESENVOLVIMENTO
 
 // Rotas de Informacoes
-rotas.get('/', home) // FASE TESTE
-rotas.get('/:Info?/:Mesa?', getInformacao) // FASE TESTE
+rotas.get('/', home)
+rotas.get('/:Info?/:Mesa?', getInformacao)
 
 export default rotas;

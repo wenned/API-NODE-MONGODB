@@ -2,9 +2,7 @@ import Mesas from '../models/Mesas.js'
 import Pedido from '../models/Pedidos.js'
 import {AlteraStoque, retornaEstoque} from './alterarEstoque.js'
 import {calcularValorTotal, CalculoStoque} from './verificarEstoque.js'
-
-
-const  accessKey = Math.random().toString(36).substring(2,15)
+import makeid from './geradorId.js'
 
 async function alteracaoPedido (req, res) {
 
@@ -41,26 +39,47 @@ async function alteracaoPedido (req, res) {
 			
 			try{
 				
-				switch(info[0]['Operacao']){
+				switch(info.Operacao){
 
 					case 0:
 						
-						await Mesas.updateOne({'_id':info[0]['Id']},{'Estado':0})
-						await Mesas.updateOne({'_id':info[0]['Id']},{'Chave':""})
-						res.status(201).send(true)
+						await Mesas.updateOne({'_id':info.Id},{'Estado':0})
+						await Mesas.updateOne({'_id':info.Id},{'Chave':""})
+						req.session.destroy((err) => {
+							if (err) {
+								console.log('Erro ao encerrar a sessão:', err);
+							} else {
+								console.log('Sessão encerrada com sucesso.');
+							}
+						});
+
+						res.status(201).send(true);
 						break
 
 					case 1:	
-						await Mesas.updateOne({'Nome':info[0]['Id']},{'Estado':1})
-						await Mesas.updateOne({'Nome':info[0]['Id']},{'Chave': accessKey})
-						res.status(201).json(accessKey)	
+						const accessKey = makeid(11)
+						const valid = await Mesas.find({'Nome': info.Id})
+						
+						if(valid[0]['Estado'] === 0){
+							await Mesas.updateOne({'Nome':info.Id},{'Estado':1})
+							await Mesas.updateOne({'Nome':info.Id},{'Chave': accessKey})
+							res.status(201).json(accessKey)	
+						}					
+						
+						if(valid[0]['Estado'] === 1){
+							res.status(201).json(1)	
+						}
+						
+						if(valid[0]['Estado'] === 2){
+							res.status(201).json(2)
+						}
 						break
 
 					case 2:
 						
-						await Mesas.updateOne({'_id':info[0]['Id']},{'Estado':2})
-						await Mesas.updateOne({'_id':info[0]['Id']},{'Chave':""})
-						res.status(201).send(true)	
+						await Mesas.updateOne({'_id':info.Id},{'Estado':2})
+						await Mesas.updateOne({'_id':info.Id},{'Chave':2})
+						res.status(201).send(2)	
 						break
 
 					default:
@@ -97,7 +116,7 @@ async function alteracaoPedido (req, res) {
 					}
 			
 					for(var Index=0; Index < ItensCal.length; Index++){
-						await Pedido.update({_id:info.Id},{$push:{Itens:ItensCal[Index]}})
+						await Pedido.updateOne({_id:info.Id},{$push:{Itens:ItensCal[Index]}})
 					}
 					await Pedido.updateOne({_id:info.Id},{'Status':"Pendente"})
 				}			
@@ -116,8 +135,7 @@ async function alteracaoPedido (req, res) {
 				const getPedidO = await Pedido.findById(info.Id)				
 				ItensCalc.push(getPedidO.Itens[info.Index])
 				await  retornaEstoque(ItensCalc)
-//				await Pedido.updateMany({_id: info.Id}, { $pull: { Itens: { _id: ItensCalc[0]['_id'] } } });
-				await Pedido.update({_id: info.Id}, { $pull: { Itens: { _id: ItensCalc[0]['_id'] } } }, {upsert: false});
+				await Pedido.updateMany({_id: info.Id}, { $pull: { Itens: { _id: ItensCalc[0]['_id'] } } });
 				
 				const getPedid = await Pedido.findById(info.Id)
 				const valorTotal = await calcularValorTotal(getPedid.Itens);
