@@ -12,7 +12,7 @@ API é uma solução avançada e flexível, desenvolvida em Node.js e integrada 
 ## Recursos Principais:
 
 ### Gestão de Cardápio: 
-	- Crie e atualize facilmente itens de cardápio, categorias de alimentos e bebidas, preços e descrições. Os clientes podem explorar o cardápio em seus dispositivos e fazer pedidos com facilidade.
+	-Crie e atualize facilmente itens de cardápio, categorias de alimentos e bebidas, preços e descrições. Os clientes podem explorar o cardápio em seus dispositivos e fazer pedidos com facilidade.
  
 ### Pedidos e Pagamentos Online: 
 	- Os clientes podem fazer pedidos diretamente de seus dispositivos, enviar pedidos à cozinha e efetuar pagamentos online de forma segura e conveniente.
