@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import home from '../view/home.js'
 import inserirPedido from './interfaces/inserirPedido.js'
-import getInformacao from '../controllers/informacao.js'
-import alteracaoPedido from '../controllers/alteracaoInformacoes.js'
+import getInformacao from './interfaces/informacao.js'
+import alteracaoPedido from './interfaces/alteracaoInformacoes.js'
 import {fecharCaixa, conferirCaixa} from '../controllers/fechamentoCaixa.js'
 
 const rotas = Router();

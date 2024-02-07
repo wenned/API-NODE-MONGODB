@@ -1,7 +1,6 @@
 import Estoque from '../models/Estoque.js'
 
 async function AlteraStoque(...args){
-
 	for(var index=0; index < args[0].length; index++){
 
 		const sabor =  	args[0][index]['Item']['Sabor']
