@@ -5,13 +5,7 @@ import {calcularValorTotal, CalculoStoque} from './verificarEstoque.js'
 import makeid from './geradorId.js'
 
 class AlteracaoProduct {
-
-
-/*	
-	const { Funcao } = req.params
-	const info = req.body
-*/
-
+	
 	async setPedidoFeito (){
 		var cont=0;
 		const infoId = req.body.idPrincipal; // ID do documento principal
@@ -36,47 +30,39 @@ class AlteracaoProduct {
 		res.status(201).send(result)
 	};
 	
-	async setAlterarStatusMesa(){
+	async setAlterarStatusMesa(operacao, id){
 		try{
-			switch(info.Operacao){
+			switch(operacao){
 					case 0:
 						
-						await Mesas.updateOne({'_id':info.Id},{'Estado':0})
-						await Mesas.updateOne({'_id':info.Id},{'Chave':""})
-						req.session.destroy((err) => {
-							if (err) {
-								console.log('Erro ao encerrar a sessão:', err);
-							} else {
-								console.log('Sessão encerrada com sucesso.');
-							}
-						});
-
-						res.status(201).send(true);
+						await Mesas.updateOne({'_id':id},{'Estado':0})
+						await Mesas.updateOne({'_id':id},{'Chave':""})
+						return 0;
 						break
 
 					case 1:	
 						const accessKey = makeid(11)
-						const valid = await Mesas.find({'Nome': info.Id})
+						const valid = await Mesas.find({'Nome': id})
 						
 						if(valid[0]['Estado'] === 0){
-							await Mesas.updateOne({'Nome':info.Id},{'Estado':1})
-							await Mesas.updateOne({'Nome':info.Id},{'Chave': accessKey})
-							res.status(201).json(accessKey)	
+							await Mesas.updateOne({'Nome':id},{'Estado':1})
+							await Mesas.updateOne({'Nome':id},{'Chave': accessKey})
+							return accessKey	
 						}					
 						
 						if(valid[0]['Estado'] === 1){
-							res.status(201).json(1)	
+							return 1	
 						}
 						
 						if(valid[0]['Estado'] === 2){
-							res.status(201).json(2)
+							return 2
 						}
 						break
 
-					case 2:	
-						await Mesas.updateOne({'_id':info.Id},{'Estado':2})
-						await Mesas.updateOne({'_id':info.Id},{'Chave':2})
-						res.status(201).json(2)	
+				case 2:	
+						await Mesas.updateOne({'_id':id},{'Estado':2})
+						await Mesas.updateOne({'_id':id},{'Chave':2})
+						return 2
 						break
 
 					default:
@@ -84,7 +70,7 @@ class AlteracaoProduct {
 				};
 
 		}catch(err){
-			res.status(500).send('ERRO AO ALTERA STATUS MESA' + err);
+			return 'ERRO AO ALTERA STATUS MESA' + err;
 		};
 	};
 
