@@ -12,7 +12,7 @@ async function getInformacao (req, res) {
 					const result = await unico.pedidoUnico();
 						
 					if (result == false){
-						res.status(500).json(result)
+						res.status(200).json(result)
 					}else{
 						res.status(201).send(result)
 					}
@@ -21,13 +21,13 @@ async function getInformacao (req, res) {
 				case 'mesas':
 
 					const resultMesas = await unico.getMesas();
-					res.send(resultMesas)
+					res.status(200).send(resultMesas)
 					break
 			
 				case 'estoque':
 			
 					const resultEstoque = await unico.getEstoque();
-					res.send(resultEstoque)
+					res.status(200).send(resultEstoque)
 					break
 				
 				case 'menu_bebidas':
@@ -63,7 +63,7 @@ async function getInformacao (req, res) {
 				case 'pedidosFeito':
 					const resultFeito = await unico.getPedidosFeitos();
 					if (resultFeito == false){
-						res.status(500).json(resultFeito)
+						res.status(200).json(resultFeito)
 					}else{
 						res.status(201).send(resultFeito)
 					}
@@ -72,7 +72,7 @@ async function getInformacao (req, res) {
 				case 'pedidosPendente':
 					const resultPendente = await unico.getPedidosPendentes();
 					if (resultPendente == false){
-						res.status(500).json(resultPendente)
+						res.status(200).json(resultPendente)
 					}else{
 						res.status(201).send(resultPendente)
 					}
