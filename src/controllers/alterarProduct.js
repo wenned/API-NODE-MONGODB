@@ -6,18 +6,51 @@ import makeid from './geradorId.js'
 
 class AlteracaoProduct {
 	
-	async setPedidoFeito (){
-		var cont=0;
-		const infoId = req.body.idPrincipal; // ID do documento principal
-		const itemId = req.body.idItem; // ID do elemento em Itens que será atualizado
+	async setInserirItemPedido(args){
+	
+		try{
+			const ItensCal = []
+			const valorTotal = await calcularValorTotal(args.Itens);
+						
+			for(var index=0; index < args.Itens.length; index++){
+				if(args.Itens[index]['Item']['Status'][1] === "false"){
+					ItensCal.push(args.Itens[index])
+				}
+			}	
 
+			const retorno = await CalculoStoque(ItensCal)
+
+			if(retorno === true){
+				await Pedido.updateOne({_id:args.first_id},{'valor_total':valorTotal}) 
+				await AlteraStoque(ItensCal)
+					
+				for(var iNdex=0; iNdex < ItensCal.length; iNdex++){
+					ItensCal[iNdex]['Item']['Status'][1] =  "true"
+				}
+			
+				for(var Index=0; Index < ItensCal.length; Index++){
+					await Pedido.updateOne({_id:args.first_id},{$push:{Itens:ItensCal[Index]}})
+				}
+				await Pedido.updateOne({_id:args.first_id},{'Status':"Pendente"})
+			}			
+			return ItensCal;
+		}catch(err){
+			return 'ERRO AO INSERIR NOVO ITEM AO PEDIDO' + err;
+		};
+	};
+		
+	async setPedidoFeito (fid, sid){
+		var cont=0;
+		const infoId = fid; // ID do documento principal
+		const itemId = sid; // ID do elemento em Itens que será atualizado
+		
 		const result = await Pedido.updateOne(
 			{ _id: infoId, 'Itens._id': itemId }, // Condição para encontrar o documento e o elemento específico
 			{ $set: { 'Itens.$.Item.Status': ['Feito', 'true'] } } // Atualização do campo Status
 		);
 			
 		const getPedido = await Pedido.findById(infoId)
-			
+				
 		for(var index=0; index < getPedido.Itens.length; index++){
 			if(getPedido.Itens[index]['Item']['Status'][0] === "Feito"){
 				cont++
@@ -27,14 +60,15 @@ class AlteracaoProduct {
 		if(getPedido.Itens.length === cont){
 			await Pedido.updateOne({_id:infoId},{Status:"Finalizado"})
 		}
-		res.status(201).send(result)
+		return result
 	};
-	
+
 	async setAlterarStatusMesa(operacao, id){
+
 		try{
 			switch(operacao){
+
 					case 0:
-						
 						await Mesas.updateOne({'_id':id},{'Estado':0})
 						await Mesas.updateOne({'_id':id},{'Chave':""})
 						return 0;
@@ -74,60 +108,30 @@ class AlteracaoProduct {
 		};
 	};
 
-	async setInserirItemPedido(){
-		try{
-			const ItensCal = []
-			const valorTotal = await calcularValorTotal(info.Itens);
-					
-			for(var index=0; index < info.Itens.length; index++){
-				if(info.Itens[index]['Item']['Status'][1] === "false"){
-					ItensCal.push(info.Itens[index])
-				}
-			}	
-			
-			const retorno = await CalculoStoque(ItensCal)
+	async removerItemPedido(id, index){
 
-			if(retorno === true){
-				await Pedido.updateOne({_id:info.Id},{'valor_total':valorTotal}) 
-				await AlteraStoque(ItensCal)
-					
-				for(var iNdex=0; iNdex < ItensCal.length; iNdex++){
-					ItensCal[iNdex]['Item']['Status'][1] =  "true"
-				}
-			
-				for(var Index=0; Index < ItensCal.length; Index++){
-					await Pedido.updateOne({_id:info.Id},{$push:{Itens:ItensCal[Index]}})
-				}
-				await Pedido.updateOne({_id:info.Id},{'Status':"Pendente"})
-			}			
-			res.status(201).send(ItensCal)
-		}catch(err){
-			res.status(500).send('ERRO AO INSERIR NOVO ITEM AO PEDIDO' + err);
-		};
-	};
-
-	async removerItemPedido(){
 		try{
 			const ItensCalc = []
 
-			const getPedidO = await Pedido.findById(info.Id)				
-			ItensCalc.push(getPedidO.Itens[info.Index])
+			const getPedido = await Pedido.findById(id)				
+			
+			ItensCalc.push(getPedido.Itens[index])
 			await  retornaEstoque(ItensCalc)
-			await Pedido.updateMany({_id: info.Id}, { $pull: { Itens: { _id: ItensCalc[0]['_id'] } } });
+			await Pedido.updateMany({_id: id}, { $pull: { Itens: { _id: ItensCalc[0]['_id'] } } });
 				
-			const getPedid = await Pedido.findById(info.Id)
+			const getPedid = await Pedido.findById(id)
 			const valorTotal = await calcularValorTotal(getPedid.Itens);
-			await Pedido.updateOne({_id:info.Id},{'valor_total':valorTotal}) 
+			await Pedido.updateOne({_id:id},{'valor_total':valorTotal}) 
 				
-			const removerPedido = await Pedido.findById(info.Id)
+			const removerPedido = await Pedido.findById(id)
 
 			if(removerPedido.valor_total === 0){
-				await Pedido.deleteOne({_id:info.Id},{})
+				await Pedido.deleteOne({_id:id},{})
 			};
 
-			res.status(201).send(true)
+			return true
 		}catch(err){
-			res.status(500).send('ERRO AO REMOVER ITEM DO PEDIDO' + err);
+			return 'ERRO AO REMOVER ITEM DO PEDIDO ' + err;
 		}
 	};
 };
