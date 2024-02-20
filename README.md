@@ -38,22 +38,23 @@ API é uma solução avançada e flexível, desenvolvida em Node.js e integrada 
 
 ## Solicitacoes de pontos
 
-- rota seu_servidor/inserir
-### /enserir
--{
--    "Itens":[
--        {
--            "Item":{
--                "Sabor" :["Item"],
--                "Valor" : 0000,
--                "Quantidade" : 0,
--                "Tipo" : "tipo_categoria_item",
--                "Status" : ["Pendente","false"],
--                "Adicional" : [""] 
--            }
--        }
--    ],
--    "Valor_total" : "",
--    "Status" : "Pendente",
--    "Nu_Pedido" : ""
--}
+- rota  PUT `seu_servidor/inserir`, inserindo pedido.
+
+    {
+    "Itens":[
+        {
+            "Item":{
+                "Sabor" :["Item"],
+                "Valor" : 0000,
+                "Quantidade" : 0,
+                "Tipo" : "tipo_categoria_item",
+                "Status" : ["Pendente","false"],
+                "Adicional" : [""] 
+            }
+        }
+    ],
+    "Valor_total" : "",
+    "Status" : "Pendente",
+    "Nu_Pedido" : ""
+    }
+
