@@ -40,20 +40,20 @@ API é uma solução avançada e flexível, desenvolvida em Node.js e integrada 
 
 - rota seu_servidor/inserir
 ### /enserir
-{
-    "Itens":[
-        {
-            "Item":{
-                "Sabor" :["Item"],
-                "Valor" : 0000,
-                "Quantidade" : 0,
-                "Tipo" : "tipo_categoria_item",
-                "Status" : ["Pendente","false"],
-                "Adicional" : [""] 
-            }
-        }
-    ],
-    "Valor_total" : "",
-    "Status" : "Pendente",
-    "Nu_Pedido" : ""
-}
+-{
+-    "Itens":[
+-        {
+-            "Item":{
+-                "Sabor" :["Item"],
+-                "Valor" : 0000,
+-                "Quantidade" : 0,
+-                "Tipo" : "tipo_categoria_item",
+-                "Status" : ["Pendente","false"],
+-                "Adicional" : [""] 
+-            }
+-        }
+-    ],
+-    "Valor_total" : "",
+-    "Status" : "Pendente",
+-    "Nu_Pedido" : ""
+-}
