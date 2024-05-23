@@ -60,6 +60,7 @@ API é uma solução avançada e flexível, desenvolvida em Node.js e integrada 
         "Nu_Pedido" : ""
     }
 
+```
 
 - Rota: PUT `seu_servidor/entrada/liberaMesa`, alterando estado para ocupado:
 - Exemplo
@@ -69,3 +70,4 @@ API é uma solução avançada e flexível, desenvolvida em Node.js e integrada 
         "operacao":0,
         "id":"id_mesa"
     }
+```
