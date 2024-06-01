@@ -3,7 +3,7 @@ import ProductInformacao from '../../controllers/getInformacao.js'
 async function getInformacao (req, res) {
 	
 	try{
-		const unico = new ProductInformacao(req.params.Mesa)	
+		const unico = new ProductInformacao(req.body)	
 		
 		switch(req.params.Info){
 				
