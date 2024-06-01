@@ -1,12 +1,12 @@
 import AlteracaoProduct from '../../controllers/alterarProduct.js'
+import ProductInformacao from '../../controllers/getInformacao.js'
 
 const product = new AlteracaoProduct();
-
 
 async function alteracaoPedido (req, res) {
 	
 	const r  = req.body
-	
+
 	switch(req.params.Funcao){
 	
 		case 'liberaMesa':
@@ -17,8 +17,16 @@ async function alteracaoPedido (req, res) {
 			break
 	
 		case 'removerItemPedido':
-			const remover = await product.removerItemPedido(r.id, r.index);
-			res.status(201).json(remover)
+			
+			const getPedido = new ProductInformacao(req.body);
+			const result = await getPedido.pedidoUnico();
+			if(result.Itens[r.index]['Item']['Status'][0] == "Feito"){
+				res.status(201).send(false)
+			}else{
+	
+				const remover = await product.removerItemPedido(r.id, r.index);
+				res.status(201).json(remover)
+			}
 			break
 
 		case 'pedidoFeito':
