@@ -109,6 +109,8 @@ class AlteracaoProduct {
 	};
 
 	async removerItemPedido(id, index){
+		
+		var validacao = 0;
 
 		try{
 			const ItensCalc = []
@@ -128,6 +130,18 @@ class AlteracaoProduct {
 			if(removerPedido.valor_total === 0){
 				await Pedido.deleteOne({_id:id},{})
 			};
+
+			const verificarFeitos = await Pedido.findById(id)
+			
+			for( var x = 0; x < verificarFeitos.Itens.length; x++ ){
+				if(verificarFeitos.Itens[x]['Item']['Status'][0] == "Feito"){
+					validacao++			
+				}
+			}
+
+			if(verificarFeitos.Itens.length === validacao){
+				await Pedido.updateOne({_id:id},{'Status':'Finalizado'})
+			}
 
 			return true
 		}catch(err){
