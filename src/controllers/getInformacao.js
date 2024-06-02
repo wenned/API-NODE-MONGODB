@@ -15,9 +15,16 @@ class ProductInformacao {
 	}
 	
 	async pedidoUnico(){
+
 		try{
-			const pedidoUnico = await Pedido.findOne({Nu_Pedido:this.value});
-			return pedidoUnico
+			if(this.value.id.length <= 0){
+				const numero_pedido = await Pedido.findOne({Nu_Pedido:this.value.numero_pedido});
+				return numero_pedido
+			}else{
+				const pedidoUnico = await Pedido.findOne({_id:this.value.id});
+				return pedidoUnico
+			}
+
 			}catch(err){
 				return false
 			}
