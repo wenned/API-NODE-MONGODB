@@ -9,12 +9,16 @@ class AlteracaoProduct {
 	async setInserirItemPedido(args){
 	
 		try{
+			const pedido = await Pedido.findById(args.first_id)
+			const pedidoAlterado = pedido
+			pedidoAlterado.Itens.push(args.item)
+			
 			const ItensCal = []
-			const valorTotal = await calcularValorTotal(args.Itens);
-						
-			for(var index=0; index < args.Itens.length; index++){
-				if(args.Itens[index]['Item']['Status'][1] === "false"){
-					ItensCal.push(args.Itens[index])
+			const valorTotal = await calcularValorTotal(pedidoAlterado.Itens);
+					
+			for(var index=0; index < pedidoAlterado.Itens.length; index++){
+				if(pedidoAlterado.Itens[index]['Item']['Status'][1] === "false"){
+					ItensCal.push(pedidoAlterado.Itens[index])
 				}
 			}	
 

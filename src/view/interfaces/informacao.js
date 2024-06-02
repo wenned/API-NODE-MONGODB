@@ -5,7 +5,7 @@ async function getInformacao (req, res) {
 	try{
 		const unico = new ProductInformacao(req.body)	
 		
-		switch(req.params.Info){
+		switch(req.params.metodo){
 				
 				case 'pedidoUnico':
 

@@ -4,7 +4,7 @@ import Estoque from '../models/Estoque.js'
 function calcularValorTotal(...args){
 
 	var soma=0;
-    
+
     for (var iten=0; iten < args[0].length; iten++){
         soma = soma + (args[0][iten]['Item']['Quantidade'] * args[0][iten]['Item']['Valor'])
     };
