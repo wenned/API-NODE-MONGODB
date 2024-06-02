@@ -17,6 +17,6 @@ rotas.put('/fechamento_caixa', conferirCaixa) // EM DESENVOLVIMENTO
 
 // Rotas de Informacoes
 rotas.get('/', home)
-rotas.get('/:Info?/:Mesa?', getInformacao)
+rotas.get('/:metodo?', getInformacao)
 
 export default rotas;
