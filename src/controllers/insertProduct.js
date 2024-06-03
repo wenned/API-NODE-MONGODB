@@ -10,7 +10,7 @@ class Product {
 	};
 	
 	async inserirProduct(){
-		var unitProduct = this.dados[0]
+		var unitProduct = this.dados
 	
 		const valorTotal = await calcularValorTotal(unitProduct.Itens);
 		unitProduct.valor_total = Number(valorTotal)
@@ -19,7 +19,7 @@ class Product {
 		if(retorno === true){
 			
 			await AlteraStoque(unitProduct.Itens)
-
+		
 			for(var index=0; index < unitProduct.Itens.length; index++){
 				unitProduct.Itens[index]['Item']['Status'][1] =  "true"
 			}

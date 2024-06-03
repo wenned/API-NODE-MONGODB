@@ -2,13 +2,13 @@ import Product from '../../controllers/insertProduct.js'
 
 async function inserirPedido(req, res){
 	
-	var dados = []
-	
-	dados.push(req.body);
-
-	let product = new Product(dados)
-	let retInstancia = product.inserirProduct();
-	res.status(201).json(retInstancia)
+	try{
+		let product = new Product(JSON.parse(JSON.stringify(req.body)))
+		let retornoInstancia = await product.inserirProduct(product);
+		res.status(201).json(retornoInstancia)
+	}catch(err){
+		res.status(401).json('Erro ao persistir dados :' +err)
+	}
 };
 
 export default inserirPedido;
