@@ -38,18 +38,18 @@ async function retornaEstoque(...args){
 			await Estoque.updateOne({Tipo:sabor[Item]}, {Quantidade:newQuantidade})
 		}
 	}
-/*	
-	for(var i = 0; i < args[0].length; i++){
+	
+	for(var e = 0; e < args[0].length; e++){
 		
-		const item = args[0][i]['Item']['Adicional'];
+		const itemR = args[0][e]['Item']['Adicional'];
 			
-		for(var it = 0; it < item.length; it++){
-			const take = await Estoque.findOne({Tipo:item[it]});
-			const newValue = take.Quantidade + 1
-			await Estoque.updateOne({Tipo:item[it]}, {Quantidade:newValue})
+		for(var r = 0; r < itemR.length; r++){
+			const takE = await Estoque.findOne({Tipo:itemR[r]});
+			const newValuE = takE.Quantidade + 1
+			await Estoque.updateOne({Tipo:itemR[r]}, {Quantidade:newValuE})
 		};
 	};
-*/
+
 };
 
 

@@ -88,13 +88,10 @@ class AlteracaoProduct {
 							return accessKey	
 						}					
 						
-						if(valid[0]['Estado'] === 1){
-							return 1	
-						}
+						if(valid[0]['Estado'] === 1){ return 1 }
 						
-						if(valid[0]['Estado'] === 2){
-							return 2
-						}
+						if(valid[0]['Estado'] === 2){ return 2 }
+
 						break
 
 				case 2:	
@@ -133,6 +130,8 @@ class AlteracaoProduct {
 
 			if(removerPedido.valor_total === 0){
 				await Pedido.deleteOne({_id:id},{})
+				var retorno = {"Pedido": id}
+				return retorno
 			};
 
 			const verificarFeitos = await Pedido.findById(id)
