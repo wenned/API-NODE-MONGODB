@@ -8,7 +8,7 @@ import {fecharCaixa, conferirCaixa} from '../controllers/fechamentoCaixa.js'
 const rotas = Router();
 
 //Rotas de I/O
-rotas.post('/inserir', inserirPedido) //FASE REMOCAO ADICIONAL
+rotas.post('/inserir', inserirPedido)
 rotas.put('/entrada/:Funcao?', alteracaoPedido)
 
 // Rotas de Fechamento de Caixa
