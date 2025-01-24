@@ -5,8 +5,7 @@ const product = new AlteracaoProduct();
 
 async function alteracaoPedido (req, res) {
 	
-	const r  = req.body
-
+	const r  = req.body	
 	switch(req.params.Funcao){
 	
 		case 'liberaMesa':
