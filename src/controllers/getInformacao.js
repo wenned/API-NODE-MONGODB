@@ -13,12 +13,13 @@ class ProductInformacao {
 	constructor (value = false){
 		this.value = value
 	}
-	
+			
 	async pedidoUnico(){
-
+		
 		try{
-			if(this.value.id.length <= 0){
+			if(this.value.id === undefined){
 				const numero_pedido = await Pedido.findOne({Nu_Pedido:this.value.numero_pedido});
+				console.log(this.value.id, this.value.numero_pedido)		
 				return numero_pedido
 			}else{
 				const pedidoUnico = await Pedido.findOne({_id:this.value.id});
