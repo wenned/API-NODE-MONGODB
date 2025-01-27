@@ -2,11 +2,17 @@ import ProductInformacao from '../../controllers/getInformacao.js'
 
 async function getInformacao (req, res) {
 	
+	var dict = new Object();
+
+	dict['metodo'] = req.params.metodo
+	dict['numero_pedido'] = req.params.item
+	dict['id'] = req.params.id
+	
 	try{
-		const unico = new ProductInformacao(req.body)	
+		const unico = new ProductInformacao(dict)
 		
 		switch(req.params.metodo){
-				
+	
 				case 'pedidoUnico':
 
 					const result = await unico.pedidoUnico();
@@ -84,7 +90,7 @@ async function getInformacao (req, res) {
 
 		}catch(err){
 			res.status(500).send('Server error', err)
-		};	
+		};
 };
 
 export default getInformacao;
