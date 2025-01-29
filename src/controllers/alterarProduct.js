@@ -47,14 +47,14 @@ class AlteracaoProduct {
 		var cont=0;
 		const infoId = fid; // ID do documento principal
 		const itemId = sid; // ID do elemento em Itens que será atualizado
-		
+			
 		const result = await Pedido.updateOne(
 			{ _id: infoId, 'Itens._id': itemId }, // Condição para encontrar o documento e o elemento específico
 			{ $set: { 'Itens.$.Item.Status': ['Feito', 'true'] } } // Atualização do campo Status
 		);
 			
 		const getPedido = await Pedido.findById(infoId)
-				
+
 		for(var index=0; index < getPedido.Itens.length; index++){
 			if(getPedido.Itens[index]['Item']['Status'][0] === "Feito"){
 				cont++
