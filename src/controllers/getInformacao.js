@@ -16,10 +16,9 @@ class ProductInformacao {
 			
 	async pedidoUnico(){
 		
-		try{
+		try{		
 			if(this.value.id === undefined){
-				const numero_pedido = await Pedido.findOne({Nu_Pedido:this.value.numero_pedido});
-				console.log(this.value.id, this.value.numero_pedido)		
+				const numero_pedido = await Pedido.findOne({Nu_Pedido:this.value.numero_pedido});		
 				return numero_pedido
 			}else{
 				const pedidoUnico = await Pedido.findOne({_id:this.value.id});
@@ -39,6 +38,18 @@ class ProductInformacao {
 			return false
 		}
 	}
+
+	async getMesaUnica(){
+		
+		try{	
+			const mesaUnica = await Mesas.findOne({Nome:this.value.numero_pedido.trim()});		
+			return mesaUnica
+			
+		}catch(err){
+				return err
+			}
+	}
+
 	
 	async getEstoque (){
 		try{
