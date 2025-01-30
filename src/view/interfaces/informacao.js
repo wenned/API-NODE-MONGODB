@@ -25,9 +25,18 @@ async function getInformacao (req, res) {
 					break
 				
 				case 'mesas':
+					try{
+						if(typeof dict['numero_pedido'] === 'undefined'){
+							const resultMesas = await unico.getMesas();
+							res.status(200).send(resultMesas)
+						}else{
+							const resultadoMesaUnica = await unico.getMesaUnica();
+							res.status(200).send(resultadoMesaUnica)
+						}
 
-					const resultMesas = await unico.getMesas();
-					res.status(200).send(resultMesas)
+					}catch(err){
+						res.status(500).send('Error ao pegar informacao sobre mesas', err)
+					};
 					break
 			
 				case 'estoque':
