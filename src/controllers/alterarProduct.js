@@ -13,7 +13,6 @@ class AlteracaoProduct {
 			const pedidoAlterado = pedido
 			
 			args.item.forEach((e, x)=>{
-				console.log(args.item[x])
 				pedidoAlterado.Itens.push(args.item[x])
 			});
 		
