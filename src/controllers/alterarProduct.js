@@ -6,13 +6,17 @@ import makeid from './geradorId.js'
 
 class AlteracaoProduct {
 	
-	async setInserirItemPedido(args){
-	
+	async setInserirItemPedido(args){	
+
 		try{
 			const pedido = await Pedido.findById(args.first_id)
 			const pedidoAlterado = pedido
-			pedidoAlterado.Itens.push(args.item)
 			
+			args.item.forEach((e, x)=>{
+				console.log(args.item[x])
+				pedidoAlterado.Itens.push(args.item[x])
+			});
+		
 			const ItensCal = []
 			const valorTotal = await calcularValorTotal(pedidoAlterado.Itens);
 					
