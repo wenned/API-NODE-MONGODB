@@ -1,15 +1,19 @@
+import mongoose from 'mongoose'
 
 async function fecharCaixa(req, res){
 	
-	console.log('em desenvolvimento')
-	/*
-	mongoose.connection.db.collection('caixas').insertOne(req.body)
+	try{
+		mongoose.connection.db.collection('caixas').insertOne(req.body)
+	
+		var dadosRecebidos = req.body
+		dadosRecebidos.Itens.forEach((element)=>{
+			mongoose.connection.db.collection('pedidos').deleteOne({Nu_Pedido:element.Nu_Pedido})
+		})
 
-	for(valor=0; valor < req.body.Itens.length; valor++){
-		var keyRemove = req.body.Itens[valor]['Id']
-		mongoose.connection.db.collection('pedidos').deleteOne({Id:keyRemove})
-	}*/
-	res.send(true)
+		res.send(true)
+	}catch(error){
+		console.error('Possivel erro na persistencia :', error)
+	}
 };
 
 async function conferirCaixa(req, res){
