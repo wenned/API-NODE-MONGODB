@@ -96,15 +96,11 @@ async function getInformacao (req, res) {
 	
 				case 'caixas':
 					
-					if(dict['numero_pedido'] === 'fechaCaixa'){
-						console.log("aquie")
+					const caixas = await unico.getCaixas();
+					if (caixas == false){
+						res.status(200).json(caixas)
 					}else{
-						const caixas = await unico.getCaixas();
-						if (caixas == false){
-							res.status(200).json(caixas)
-						}else{
-							res.status(201).send(caixas)
-						}
+						res.status(201).send(caixas)
 					}
 					break
 				
