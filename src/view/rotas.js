@@ -13,7 +13,7 @@ rotas.put('/entrada/:Funcao?', alteracaoPedido)
 
 // Rotas de Fechamento de Caixa
 rotas.post('/fechamento_caixa', fecharCaixa) // EM DESENVOLVIMENTO
-rotas.put('/fechamento_caixa', conferirCaixa) // EM DESENVOLVIMENTO
+rotas.put('/conferirCaixa', conferirCaixa) // EM DESENVOLVIMENTO
 
 // Rotas de Informacoes
 rotas.get('/', home)

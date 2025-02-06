@@ -83,8 +83,9 @@ async function getInformacao (req, res) {
 						res.status(201).send(resultFeito)
 					}
 					break
-
+	
 				case 'pedidosPendente':
+					
 					const resultPendente = await unico.getPedidosPendentes();
 					if (resultPendente == false){
 						res.status(200).json(resultPendente)
@@ -92,7 +93,21 @@ async function getInformacao (req, res) {
 						res.status(201).send(resultPendente)
 					}
 					break
-						
+	
+				case 'caixas':
+					
+					if(dict['numero_pedido'] === 'fechaCaixa'){
+						console.log("aquie")
+					}else{
+						const caixas = await unico.getCaixas();
+						if (caixas == false){
+							res.status(200).json(caixas)
+						}else{
+							res.status(201).send(caixas)
+						}
+					}
+					break
+				
 				default:
 					break
 			}
