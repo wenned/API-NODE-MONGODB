@@ -11,29 +11,34 @@ class Product {
 	
 	async inserirProduct(){
 		var unitProduct = this.dados
-	
-		const valorTotal = await calcularValorTotal(unitProduct.Itens);
-		unitProduct.valor_total = Number(valorTotal)
-		const retorno = await CalculoStoque(unitProduct.Itens)
 		
-		if(retorno === true){
+		try{
+			const valorTotal = await calcularValorTotal(unitProduct.Itens);
+			unitProduct.valor_total = Number(valorTotal)
+			const retorno = await CalculoStoque(unitProduct.Itens)
 			
-			await AlteraStoque(unitProduct.Itens)
-		
-			for(var index=0; index < unitProduct.Itens.length; index++){
-				unitProduct.Itens[index]['Item']['Status'][1] =  "true"
-			}
+			if(retorno === true){
 			
-			const NuPedido = await nuPedido.findById('63fa6fe096ec286fca8578a5')
+				await AlteraStoque(unitProduct.Itens)
 			
-			unitProduct.Nu_Pedido =	'SM' + (NuPedido.Nu_pedido + 1)
-			const newPedido = NuPedido.Nu_pedido + 1
-			await nuPedido.updateOne({'_id':'63fa6fe096ec286fca8578a5'},{'Nu_pedido':newPedido})
+				for(var index=0; index < unitProduct.Itens.length; index++){
+					unitProduct.Itens[index]['Item']['Status'][1] =  "true"
+				}
+			
+				const NuPedido = await nuPedido.findById('63fa6fe096ec286fca8578a5')
+			
+				unitProduct.Nu_Pedido =	'SM' + (NuPedido.Nu_pedido + 1)
+				const newPedido = NuPedido.Nu_pedido + 1
+				await nuPedido.updateOne({'_id':'63fa6fe096ec286fca8578a5'},{'Nu_pedido':newPedido})
 	
-			const Gravar = await Pedido.create(unitProduct)
-			return Gravar
+				const Gravar = await Pedido.create(unitProduct)
+				return Gravar
 			};
-		};
+		}catch{error}{
+			console.error('Erro interno Servidor', error)
+		
+		}
+	};
 };
 
 export default Product;
