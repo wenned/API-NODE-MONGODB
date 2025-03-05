@@ -6,14 +6,25 @@ import MPasteis from '../models/MenuPasteis.js'
 import MFrances from '../models/MenuFrances.js'
 import MSuicos from '../models/MenuSuicos.js'
 import MHamburguer from '../models/MenuHamburgue.js'
-
+import Caixas from '../models/Caixas.js'
 
 class ProductInformacao {
 
 	constructor (value = false){
 		this.value = value
 	}
-			
+	
+	async getCaixas(){
+
+		try{
+			const caixa = await Caixas.find()
+			return caixa
+		}catch(err){
+			console.error(err)
+			return false}
+	
+	}
+
 	async pedidoUnico(){
 		
 		try{		
