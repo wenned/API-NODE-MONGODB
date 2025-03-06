@@ -17,6 +17,13 @@ async function fecharCaixa(req, res){
 };
 
 async function conferirCaixa(req, res){
-	console.log('em desenvolvimento')
-}
+	
+	const {nome, id } = req.body
+	
+	mongoose.connection.db.collection('caixas').updateOne(
+		{'Id':id},
+		{$set: {'Verificador':nome, 'Verificado':true}}
+	)
+};
+
 export {fecharCaixa, conferirCaixa} 
