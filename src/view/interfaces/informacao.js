@@ -26,12 +26,25 @@ async function getInformacao (req, res) {
 				
 				case 'mesas':
 					try{
+			
 						if(typeof dict['numero_pedido'] === 'undefined'){
 							const resultMesas = await unico.getMesas();
 							res.status(200).send(resultMesas)
 						}else{
 							const resultadoMesaUnica = await unico.getMesaUnica();
-							res.status(200).send(resultadoMesaUnica)
+							
+							if(resultadoMesaUnica.Estado === 1 && resultadoMesaUnica.Chave === dict.id){
+								res.status(200).send(resultadoMesaUnica)
+							}else{
+							
+								if(resultadoMesaUnica.Estado === 1){
+									res.status(200).json({"Estado": resultadoMesaUnica.Estado})
+								}else{
+									res.status(200).send(resultadoMesaUnica)
+
+								}
+							}
+							
 						}
 
 					}catch(err){

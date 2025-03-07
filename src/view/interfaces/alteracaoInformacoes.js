@@ -19,10 +19,11 @@ async function alteracaoPedido (req, res) {
 			
 			const getPedido = new ProductInformacao(req.body);
 			const result = await getPedido.pedidoUnico();
+			
 			if(result.Itens[r.index]['Item']['Status'][0] == "Feito"){
 				res.status(201).send(false)
 			}else{
-	
+				
 				const remover = await product.removerItemPedido(r.id, r.index);
 				res.status(201).json(remover)
 			}
