@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 async function fecharCaixa(req, res){
-	
+
 	try{
 		mongoose.connection.db.collection('caixas').insertOne(req.body)
 	

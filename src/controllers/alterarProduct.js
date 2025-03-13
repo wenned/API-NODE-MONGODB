@@ -119,18 +119,17 @@ class AlteracaoProduct {
 		try{
 			const ItensCalc = []
 
-			const getPedido = await Pedido.findById(id)				
-			
+			const getPedido = await Pedido.findById(id)					
 			ItensCalc.push(getPedido.Itens[index])
 			await  retornaEstoque(ItensCalc)
 			await Pedido.updateMany({_id: id}, { $pull: { Itens: { _id: ItensCalc[0]['_id'] } } });
-				
 			const getPedid = await Pedido.findById(id)
 			const valorTotal = await calcularValorTotal(getPedid.Itens);
+
 			await Pedido.updateOne({_id:id},{'valor_total':valorTotal}) 
 				
 			const removerPedido = await Pedido.findById(id)
-
+		
 			if(removerPedido.valor_total === 0){
 				await Pedido.deleteOne({_id:id},{})
 				var retorno = {"Pedido": id}

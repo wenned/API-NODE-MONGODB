@@ -27,11 +27,13 @@ class ProductInformacao {
 
 	async pedidoUnico(){
 		
-		try{		
+		try{
+	
 			if(this.value.id === undefined){
 				const numero_pedido = await Pedido.findOne({Nu_Pedido:this.value.numero_pedido});		
 				return numero_pedido
 			}else{
+
 				const pedidoUnico = await Pedido.findOne({_id:this.value.id});
 				return pedidoUnico
 			}

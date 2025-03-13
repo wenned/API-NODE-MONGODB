@@ -40,13 +40,15 @@ async function retornaEstoque(...args){
 	}
 	
 	for(var e = 0; e < args[0].length; e++){
-		
+	
 		const itemR = args[0][e]['Item']['Adicional'];
 			
 		for(var r = 0; r < itemR.length; r++){
-			const takE = await Estoque.findOne({Tipo:itemR[r]});
-			const newValuE = takE.Quantidade + 1
-			await Estoque.updateOne({Tipo:itemR[r]}, {Quantidade:newValuE})
+			if(itemR[r].length > 0){
+				const takE = await Estoque.findOne({Tipo:itemR[r]});
+				const newValuE = takE.Quantidade + 1
+				await Estoque.updateOne({Tipo:itemR[r]}, {Quantidade:newValuE})
+			}
 		};
 	};
 
