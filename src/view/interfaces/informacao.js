@@ -10,7 +10,7 @@ async function getInformacao (req, res) {
 	
 	try{
 		const unico = new ProductInformacao(dict)
-		
+	
 		switch(req.params.metodo){
 	
 				case 'pedidoUnico':
@@ -20,7 +20,7 @@ async function getInformacao (req, res) {
 					if (result == false){
 						res.status(200).json(result)
 					}else{
-						res.status(201).send(result)
+						res.status(200).send(result)
 					}
 					break
 				
