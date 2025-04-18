@@ -2,13 +2,16 @@ import Pedido from '../models/Pedidos.js'
 import nuPedido from '../models/nuPedido.js'
 import {AlteraStoque} from './alterarEstoque.js'
 import {calcularValorTotal, CalculoStoque, ResultEstoque} from './verificarEstoque.js'
+import CouchdbUtils  from './utilsCouchDB.js'	
+
 
 class Product {
 	
 	constructor(args){
 		this.dados = args;
+		this.db = new CouchdbUtils();
 	};
-	
+
 	async inserirProduct(){
 		var unitProduct = this.dados
 		
@@ -32,6 +35,9 @@ class Product {
 				await nuPedido.updateOne({'_id':'63fa6fe096ec286fca8578a5'},{'Nu_pedido':newPedido})
 	
 				const Gravar = await Pedido.create(unitProduct)
+				
+				this.db.alterarNumeroPedidoCouchDB(newPedido)
+
 				return Gravar
 			};
 		}catch{error}{
