@@ -1,9 +1,11 @@
 # Rest API -
 
 ## Tecnologias usadas;
+	- Express
 	- Node.Js
 	- MongoDB
-	- Express
+    - CouchDB
+
 
 ## API para o Sistema de Autoatendimento Eletrônico e Controle de Caixa de Restaurante/Bar
 
