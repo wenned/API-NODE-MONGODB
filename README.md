@@ -16,31 +16,36 @@ bares e estabelecimentos similares. Esta API é uma solução completa para mode
 ## Recursos Principais:
 
 ## Gestão de Cardápio: 
-	- Crie e atualize facilmente itens de cardápio, categorias de alimentos e bebidas, preços e descrições. 
-    - Os clientes podem explorar o cardápio em seus dispositivos e fazer pedidos com facilidade.
+	- Crie e atualize facilmente itens de cardápio, categorias de alimentos e bebidas, preços e 
+    descrições. Os clientes podem explorar o cardápio em seus dispositivos e fazer pedidos com facilidade.
  
 ## Pedidos e Pagamentos Online: 
-	- Os clientes podem fazer pedidos diretamente de seus dispositivos, enviar pedidos à cozinha e efetuar pagamentos online 
-    de forma segura e conveniente.
+	- Os clientes podem fazer pedidos diretamente de seus dispositivos, enviar pedidos à cozinha e
+    efetuar pagamentos online de forma segura e conveniente.
  
 ## Integração de Caixa: 
-	- Registre e controle todas as transações de caixa, incluindo pagamentos em dinheiro, cartões de crédito e outros métodos de pagamento. 
-    Mantenha um histórico preciso de todas as vendas.
+	- Registre e controle todas as transações de caixa, incluindo pagamentos em dinheiro,
+    cartões de crédito e outros métodos de pagamento mantendo um histórico preciso de todas as vendas.
  
 ## Gestão de Estoque: 
-	- Monitore o estoque de ingredientes e produtos em tempo real. Receba alertas quando os níveis de estoque estiverem baixos e automatize pedidos de reposição.
+	- Monitore o estoque de ingredientes e produtos em tempo real. Receba alertas quando os níveis
+    de estoque estiverem baixos e automatize pedidos de reposição.
  
 ## Relatórios e Análises: 
-	- Tenha insights valiosos sobre o desempenho do seu estabelecimento com relatórios detalhados sobre vendas, inventário, pedidos e muito mais.
+	- Tenha insights valiosos sobre o desempenho do seu estabelecimento com relatórios detalhados
+    sobre vendas, inventário, pedidos e muito mais.
  
 ## Integração de Mesa e Comanda: 
-	- Associe pedidos a mesas específicas e gerencie comandas com facilidade. Os clientes podem solicitar serviços sem chamar um garçom.
+	- Associe pedidos a mesas específicas e gerencie comandas com facilidade.
+    - Os clientes podem solicitar serviços sem chamar um garçom.
 
 ## Personalização e Branding: 
-	- Personalize a interface e a experiência do usuário com sua marca, incluindo logotipo, cores e design.
+	- Personalize a interface e a experiência do usuário com sua marca,
+    incluindo logotipo, cores e design.
  
 ## Segurança e Autenticação: 
-	- Proteja os dados do cliente e do restaurante com recursos avançados de autenticação e segurança.
+	- Proteja os dados do cliente e do restaurante com recursos avançados 
+    de autenticação e segurança.
 
 
 ## Solicitacoes de pontos
