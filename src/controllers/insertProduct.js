@@ -34,11 +34,12 @@ class Product {
 				const newPedido = NuPedido.Nu_pedido + 1
 				await nuPedido.updateOne({'_id':'63fa6fe096ec286fca8578a5'},{'Nu_pedido':newPedido})
 	
-				const Gravar = await Pedido.create(unitProduct)
+				const response_pedido = await Pedido.create(unitProduct)
 				
-				this.db.alterarNumeroPedidoCouchDB(newPedido)
-
-				return Gravar
+				this.db.alterarNumeroPedidoCouchDB(newPedido);
+				this.db.inserirPedidoCouchDb(response_pedido, unitProduct);
+				
+				return response_pedido
 			};
 		}catch{error}{
 			console.error('Erro interno Servidor', error)
