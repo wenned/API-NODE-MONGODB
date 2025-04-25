@@ -32,9 +32,9 @@ export default class  CouchdbUtils {
 					},
 					body: JSON.stringify(data.rows[0].doc)
 				})
-			//console.log(persit)
+
 		}catch(err){
-			console.error(err)
+			console.error('NAO FOI POSSIVEL SALVA ARQUIVO', err)
 		}
 	};
 	
@@ -47,7 +47,6 @@ export default class  CouchdbUtils {
 			let mongoId = String(args[0]['_id']).split()
 			const docCouch = {_id : mongoId[0], ...args[1] }
 			
-
 			const persitt = await fetch(`${config.couchdbUrl}/pedidos`,
 				{
 					method: 'POST',
@@ -61,8 +60,5 @@ export default class  CouchdbUtils {
 		}catch(err){
 			console.error('ERRO AO SALVAR PEDIDO NO COUCHDB', err)
 		}
-
-
 	};
-
 };
