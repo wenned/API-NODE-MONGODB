@@ -1,11 +1,12 @@
 import { config } from '../config/env.js'
 
+const auth = btoa(`${config.userId}:${config.userKey}`)
+
+
 export default class  CouchdbUtils { 
 	
 	async alterarNumeroPedidoCouchDB (...args){
 		
-		const auth = btoa(`${config.userId}:${config.userKey}`)
-
 		try{
 
 			//consultando documento
@@ -20,7 +21,7 @@ export default class  CouchdbUtils {
 
 			const data = await response.json();
 			data.rows[0].doc.Nu_pedido = args[0]
-	
+
 			//salvando no banco
 
 			const persit = await fetch(`${config.couchdbUrl}/nupedidos/${data.rows[0].doc._id}`,
@@ -40,8 +41,6 @@ export default class  CouchdbUtils {
 	
 	async inserirPedidoCouchDb(...args){
 			
-		const authg = btoa(`${config.userId}:${config.userKey}`)
-	
 		try{
 
 			let mongoId = String(args[0]['_id']).split()
@@ -51,7 +50,7 @@ export default class  CouchdbUtils {
 				{
 					method: 'POST',
 					headers:{
-						'Authorization': `Basic ${authg}`,
+						'Authorization': `Basic ${auth}`,
 						'Content-type': 'application/json',
 					},
 					body: JSON.stringify(docCouch)
@@ -61,4 +60,69 @@ export default class  CouchdbUtils {
 			console.error('ERRO AO SALVAR PEDIDO NO COUCHDB', err)
 		}
 	};
+
+	async atualizacaoMesas(...args){
+		
+		try{
+			switch(args[0]){
+
+				case 0:
+			
+					const response = await fetch(`${config.couchdbUrl}/mesas/${args[1]}`,
+						{
+							method: 'GET',
+							headers:{
+							'Authorization': `Basic ${auth}`
+						},
+					});
+
+					const data = await response.json();
+				
+					data.Estado = args[0];
+					data.Chave = '';
+		
+					const estadoZero = await fetch(`${config.couchdbUrl}/mesas/${data._id}`,
+						{
+							method: 'PUT',
+							headers:{
+								'Authorization': `Basic ${auth}`,
+								'Content-type': 'application/json',
+							},
+							body: JSON.stringify(data)
+						});
+					break
+
+				case 1:
+					const resp = await fetch(`${config.couchdbUrl}/mesas/_find`,
+						{
+							method:'POST',
+							headers: { 
+								'Authorization' : `Basic ${auth}`,
+								'Content-Type':'application/json'	
+							},
+							body : JSON.stringify({"selector" : {"Nome": args[1]}})
+						});
+					const dataresp = await resp.json();
+					
+					dataresp.docs[0].Estado = args[0]
+					dataresp.docs[0].Chave = args[2]
+					
+					const persit = await fetch(`${config.couchdbUrl}/mesas/${dataresp.docs[0]._id}`,
+						{
+							method: 'PUT',
+							headers:{
+								'Authorization': `Basic ${auth}`,
+								'Content-type': 'application/json',
+							},
+							body: JSON.stringify(dataresp.docs[0])
+						});
+					break
+			}
+
+		}catch(err){
+			console.error('NAO FOI POSSIVEL FAZER A ALTERACAO NA MESA', err)
+		};
+
+	};
+
 };
