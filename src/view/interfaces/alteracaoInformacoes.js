@@ -1,17 +1,23 @@
 import AlteracaoProduct from '../../controllers/alterarProduct.js'
 import ProductInformacao from '../../controllers/getInformacao.js'
+import CouchdbUtils from '../../controllers/utilsCouchDB.js'
 
 const product = new AlteracaoProduct();
+const db = new CouchdbUtils();
 
 async function alteracaoPedido (req, res) {
 	
 	const r  = req.body	
+
 	switch(req.params.Funcao){
 	
 		case 'liberaMesa':
 		case 'ocuparMesa':
 		case 'alteraMesa':
 			const libera = await product.setAlterarStatusMesa(r.operacao, r.id)
+			
+			db.atualizacaoMesas(r.operacao, r.id, libera);
+
 			res.status(201).json(libera)
 			break
 	
