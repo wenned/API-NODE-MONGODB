@@ -117,12 +117,44 @@ export default class  CouchdbUtils {
 							body: JSON.stringify(dataresp.docs[0])
 						});
 					break
+
+				case 2:
+			
+					const respdois = await fetch(`${config.couchdbUrl}/mesas/${args[1]}`,
+						{
+							method: 'GET',
+							headers:{
+							'Authorization': `Basic ${auth}`
+						},
+					});
+
+					const dataDois = await respdois.json();
+				
+					dataDois.Estado = args[0];
+					dataDois.Chave = args[0];
+		
+					const estadoDois = await fetch(`${config.couchdbUrl}/mesas/${dataDois._id}`,
+						{
+							method: 'PUT',
+							headers:{
+								'Authorization': `Basic ${auth}`,
+								'Content-type': 'application/json',
+							},
+							body: JSON.stringify(dataDois)
+						});
+					break
 			}
 
 		}catch(err){
 			console.error('NAO FOI POSSIVEL FAZER A ALTERACAO NA MESA', err)
 		};
-
 	};
+
+	async removerItemPedidoCouchdb(...args){console.log('certo')};
+
+	async marcaPedidoFeitoCouchdb(...args){};
+
+	async inseirItemPedidoFeitoCouchdb(...args){};
+
 
 };
