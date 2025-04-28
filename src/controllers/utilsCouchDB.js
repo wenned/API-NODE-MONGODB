@@ -128,8 +128,8 @@ export default class  CouchdbUtils {
 						},
 					});
 
-					const dataDois = await respdois.json();
-				
+					const dataDois = await respdois.json();				
+
 					dataDois.Estado = args[0];
 					dataDois.Chave = args[0];
 		
@@ -142,6 +142,7 @@ export default class  CouchdbUtils {
 							},
 							body: JSON.stringify(dataDois)
 						});
+
 					break
 			}
 
@@ -150,11 +151,83 @@ export default class  CouchdbUtils {
 		};
 	};
 
-	async removerItemPedidoCouchdb(...args){console.log('certo')};
+	async removerItemPedidoCouchdb(...args){
+			
+		const response_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0]}`,
+				{
+					method: 'GET',
+					headers:{
+						'Authorization': `Basic ${auth}`
+					},
+				});
 
-	async marcaPedidoFeitoCouchdb(...args){};
+		const da_ = await response_.json();
 
-	async inseirItemPedidoFeitoCouchdb(...args){};
+		da_.Itens.splice(args[1], 1)
 
+		await fetch(`${config.couchdbUrl}/pedidos/${da_._id}`,
+			{
+				method: 'PUT',
+				headers:{
+					'Authorization': `Basic ${auth}`,
+					'Content-type': 'application/json',
+				},
+				body: JSON.stringify(da_)
+			});
+	};
+/*
+	async marcaPedidoFeitoCouchdb(...args){
+				
+		const res_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0]}`,
+			{
+				method: 'GET',
+				headers:{
+					'Authorization': `Basic ${auth}`
+				},
+			});
+
+		const da__ = await res_.json();
+
+		da__.Itens[args[1]].Item.Status[0] = "Feito"
+
+		await fetch(`${config.couchdbUrl}/pedidos/${da__._id}`,
+			{
+				method: 'PUT',
+				headers:{
+					'Authorization': `Basic ${auth}`,
+					'Content-type': 'application/json',
+				},
+				body: JSON.stringify(da__)
+			});
+	};
+*/
+/*
+	async inseirItemPedidoFeitoCouchdb(...args){
+	
+		const res_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0].first_id}`,
+				{
+					method: 'GET',
+					headers:{
+						'Authorization': `Basic ${auth}`
+					},
+				});
+
+		const da__ = await res_.json();
+
+		for(let i$ = 0; i$ < args[0].item.length; i$++){
+			da__.Itens.push(args[0].item[i$])
+		};
+	
+		await fetch(`${config.couchdbUrl}/pedidos/${da__._id}`,
+			{
+				method: 'PUT',
+				headers:{
+					'Authorization': `Basic ${auth}`,
+					'Content-type': 'application/json',
+				},
+				body: JSON.stringify(da__)
+			});
+	};
+*/
 
 };
