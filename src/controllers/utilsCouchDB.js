@@ -1,7 +1,9 @@
 import { config } from '../config/env.js'
+import toolCouchdb from './configCouchdb.js'
 
 const auth = btoa(`${config.userId}:${config.userKey}`)
 
+const tool = new toolCouchdb();
 
 export default class  CouchdbUtils { 
 	
@@ -152,7 +154,7 @@ export default class  CouchdbUtils {
 	};
 
 	async removerItemPedidoCouchdb(...args){
-			
+		
 		const response_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0]}`,
 				{
 					method: 'GET',
@@ -162,9 +164,11 @@ export default class  CouchdbUtils {
 				});
 
 		const da_ = await response_.json();
-
+		//criar nesse ponto a implementcao para apagar pedido caso o pedido nao tenha mais itens	
 		da_.Itens.splice(args[1], 1)
 
+		const return_ =	tool.calculation_call(da_);	
+		
 		await fetch(`${config.couchdbUrl}/pedidos/${da_._id}`,
 			{
 				method: 'PUT',
@@ -172,7 +176,7 @@ export default class  CouchdbUtils {
 					'Authorization': `Basic ${auth}`,
 					'Content-type': 'application/json',
 				},
-				body: JSON.stringify(da_)
+				body: JSON.stringify(return_)
 			});
 	};
 /*
@@ -200,8 +204,7 @@ export default class  CouchdbUtils {
 				body: JSON.stringify(da__)
 			});
 	};
-*/
-/*
+
 	async inseirItemPedidoFeitoCouchdb(...args){
 	
 		const res_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0].first_id}`,
@@ -229,5 +232,4 @@ export default class  CouchdbUtils {
 			});
 	};
 */
-
 };
