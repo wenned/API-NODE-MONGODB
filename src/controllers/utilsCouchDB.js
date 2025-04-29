@@ -164,20 +164,34 @@ export default class  CouchdbUtils {
 				});
 
 		const da_ = await response_.json();
-		//criar nesse ponto a implementcao para apagar pedido caso o pedido nao tenha mais itens	
+		var bol = true;
 		da_.Itens.splice(args[1], 1)
-
-		const return_ =	tool.calculation_call(da_);	
 		
-		await fetch(`${config.couchdbUrl}/pedidos/${da_._id}`,
-			{
-				method: 'PUT',
-				headers:{
-					'Authorization': `Basic ${auth}`,
-					'Content-type': 'application/json',
-				},
-				body: JSON.stringify(return_)
-			});
+		if(da_.Itens.length == 0){bol = false}
+		
+		if(bol == true){
+
+			const return_ =	tool.calculation_call(da_);	
+	
+			await fetch(`${config.couchdbUrl}/pedidos/${da_._id}`,
+				{
+					method: 'PUT',
+					headers:{
+						'Authorization': `Basic ${auth}`,
+						'Content-type': 'application/json',
+					},
+					body: JSON.stringify(return_)
+				});
+		}else{
+			await fetch(`${config.couchdbUrl}/pedidos/${da_._id}?rev=${da_._rev}`,
+				{
+					method: 'DELETE',
+					headers:{
+						'Authorization': `Basic ${auth}`,
+						'Content-type': 'application/json',
+					}
+				});
+		};
 	};
 /*
 	async marcaPedidoFeitoCouchdb(...args){
