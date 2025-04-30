@@ -31,17 +31,21 @@ async function alteracaoPedido (req, res) {
 			}else{
 				
 				const remover = await product.removerItemPedido(r.id, r.index);
+				db.removerItemPedidoCouchdb(r.id, r.index);
 				res.status(201).json(remover)
 			}
 			break
 
 		case 'pedidoFeito':
+			
 			const pedido = await product.setPedidoFeito(r.first_id, r.second_id);
+			db.marcaPedidoFeitoCouchdb(r.first_id, r.index);
 			res.status(201).json(pedido);
 			break
 
 		case 'inserirItemPedido':
 			const inserir = await product.setInserirItemPedido(r);
+			//db.inseirItemPedidoFeitoCouchdb(r)
 			res.status(201).json(inserir)
 			break
 
