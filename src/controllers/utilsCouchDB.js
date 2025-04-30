@@ -193,7 +193,7 @@ export default class  CouchdbUtils {
 				});
 		};
 	};
-/*
+
 	async marcaPedidoFeitoCouchdb(...args){
 				
 		const res_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0]}`,
@@ -218,7 +218,7 @@ export default class  CouchdbUtils {
 				body: JSON.stringify(da__)
 			});
 	};
-
+/*
 	async inseirItemPedidoFeitoCouchdb(...args){
 	
 		const res_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0].first_id}`,
