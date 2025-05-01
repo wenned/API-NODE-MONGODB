@@ -45,7 +45,7 @@ async function alteracaoPedido (req, res) {
 
 		case 'inserirItemPedido':
 			const inserir = await product.setInserirItemPedido(r);
-			//db.inseirItemPedidoFeitoCouchdb(r)
+			db.inseirItemPedidoFeitoCouchdb(r)
 			res.status(201).json(inserir)
 			break
 
