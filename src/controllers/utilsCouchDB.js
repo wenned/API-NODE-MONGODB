@@ -25,16 +25,7 @@ export default class  CouchdbUtils {
 			data.rows[0].doc.Nu_pedido = args[0]
 
 			//salvando no banco
-
-			const persit = await fetch(`${config.couchdbUrl}/nupedidos/${data.rows[0].doc._id}`,
-				{
-					method: 'PUT',
-					headers:{
-						'Authorization': `Basic ${auth}`,
-						'Content-type': 'application/json',
-					},
-					body: JSON.stringify(data.rows[0].doc)
-				})
+			tool.persitence_doc('nupedidos', data.rows[0].doc, data.rows[0].doc._id);
 
 		}catch(err){
 			console.error('NAO FOI POSSIVEL SALVA ARQUIVO', err)
