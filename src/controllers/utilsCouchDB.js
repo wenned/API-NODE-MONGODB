@@ -82,16 +82,8 @@ export default class  CouchdbUtils {
 				
 					data.Estado = args[0];
 					data.Chave = '';
-		
-					const estadoZero = await fetch(`${config.couchdbUrl}/mesas/${data._id}`,
-						{
-							method: 'PUT',
-							headers:{
-								'Authorization': `Basic ${auth}`,
-								'Content-type': 'application/json',
-							},
-							body: JSON.stringify(data)
-						});
+					
+					tool.persistence_doc('mesas', data, data._id);
 					break
 
 				case 1:
@@ -109,15 +101,7 @@ export default class  CouchdbUtils {
 					dataresp.docs[0].Estado = args[0]
 					dataresp.docs[0].Chave = args[2]
 					
-					const persit = await fetch(`${config.couchdbUrl}/mesas/${dataresp.docs[0]._id}`,
-						{
-							method: 'PUT',
-							headers:{
-								'Authorization': `Basic ${auth}`,
-								'Content-type': 'application/json',
-							},
-							body: JSON.stringify(dataresp.docs[0])
-						});
+					tool.persistence_doc('mesas', dataresp.docs[0], dataresp.docs[0]._id);
 					break
 
 				case 2:
@@ -134,17 +118,8 @@ export default class  CouchdbUtils {
 
 					dataDois.Estado = args[0];
 					dataDois.Chave = args[0];
-		
-					const estadoDois = await fetch(`${config.couchdbUrl}/mesas/${dataDois._id}`,
-						{
-							method: 'PUT',
-							headers:{
-								'Authorization': `Basic ${auth}`,
-								'Content-type': 'application/json',
-							},
-							body: JSON.stringify(dataDois)
-						});
 
+					tool.persistence_doc('mesas', dataDois, dataDois._id);	
 					break
 			}
 
@@ -172,16 +147,9 @@ export default class  CouchdbUtils {
 		if(bol == true){
 
 			const return_ =	tool.calculation_call(da_);	
-	
-			await fetch(`${config.couchdbUrl}/pedidos/${da_._id}`,
-				{
-					method: 'PUT',
-					headers:{
-						'Authorization': `Basic ${auth}`,
-						'Content-type': 'application/json',
-					},
-					body: JSON.stringify(return_)
-				});
+			
+			tool.persistence_doc('pedidos', return_, da_._id);
+
 		}else{
 			await fetch(`${config.couchdbUrl}/pedidos/${da_._id}?rev=${da_._rev}`,
 				{
@@ -207,16 +175,8 @@ export default class  CouchdbUtils {
 		const da__ = await res_.json();
 
 		da__.Itens[args[1]].Item.Status[0] = "Feito"
-
-		await fetch(`${config.couchdbUrl}/pedidos/${da__._id}`,
-			{
-				method: 'PUT',
-				headers:{
-					'Authorization': `Basic ${auth}`,
-					'Content-type': 'application/json',
-				},
-				body: JSON.stringify(da__)
-			});
+		
+		tool.persistence_doc('pedidos', da__, da__._id);
 	};
 
 	async inseirItemPedidoFeitoCouchdb(...args){
@@ -234,16 +194,8 @@ export default class  CouchdbUtils {
 		for(let i$ = 0; i$ < args[0].item.length; i$++){
 			da__.Itens.push(args[0].item[i$])
 		};
-	
-		await fetch(`${config.couchdbUrl}/pedidos/${da__._id}`,
-			{
-				method: 'PUT',
-				headers:{
-					'Authorization': `Basic ${auth}`,
-					'Content-type': 'application/json',
-				},
-				body: JSON.stringify(da__)
-			});
+
+		tool.persistence_doc('pedidos', da__, da__._id);
 	};
 
 };
