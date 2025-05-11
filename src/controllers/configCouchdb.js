@@ -1,3 +1,7 @@
+import { config } from '../config/env.js'
+
+const auth = btoa(`${config.userId}:${config.userKey}`)
+
 export default class toolCouchdb{
 	
 	calculation_call(...args){
@@ -12,5 +16,17 @@ export default class toolCouchdb{
 			return dados;
 
 		}catch(err){console.error('NAO FOI POSSIVEL OBTER A SOMA', err)}
+	};
+
+	async persistence_doc(banco, doc, id){
+		
+		await fetch(`${config.couchdbUrl}/${banco}/${id}`,			{
+				method: 'PUT',
+				headers:{
+					'Authorization': `Basic ${auth}`,
+					'Content-type': 'application/json',
+				},
+				body: JSON.stringify(doc)
+			});
 	};
 };
