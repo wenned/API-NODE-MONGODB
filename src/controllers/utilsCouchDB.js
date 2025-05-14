@@ -25,7 +25,7 @@ export default class  CouchdbUtils {
 			data.rows[0].doc.Nu_pedido = args[0]
 
 			//salvando no banco
-			tool.persitence_doc('nupedidos', data.rows[0].doc, data.rows[0].doc._id);
+			tool.persistence_doc('nupedidos', data.rows[0].doc, data.rows[0].doc._id);
 
 		}catch(err){
 			console.error('NAO FOI POSSIVEL SALVA ARQUIVO', err)
@@ -121,28 +121,21 @@ export default class  CouchdbUtils {
 
 	async removerItemPedidoCouchdb(...args){
 		
-		const response_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0]}`,
-				{
-					method: 'GET',
-					headers:{
-						'Authorization': `Basic ${auth}`
-					},
-				});
+		const response = await tool.find_doc('pedidos', args[0]);
 
-		const da_ = await response_.json();
 		var bol = true;
-		da_.Itens.splice(args[1], 1)
+		response.Itens.splice(args[1], 1)
 		
-		if(da_.Itens.length == 0){bol = false}
+		if(response.Itens.length == 0){bol = false}
 		
 		if(bol == true){
-
-			const return_ =	tool.calculation_call(da_);	
-			
-			tool.persistence_doc('pedidos', return_, da_._id);
+	
+			const return_ =	tool.calculation_call(response);	
+		
+			tool.persistence_doc('pedidos', return_, response._id);
 
 		}else{
-			await fetch(`${config.couchdbUrl}/pedidos/${da_._id}?rev=${da_._rev}`,
+			await fetch(`${config.couchdbUrl}/pedidos/${response._id}?rev=${response._rev}`,
 				{
 					method: 'DELETE',
 					headers:{
@@ -154,39 +147,24 @@ export default class  CouchdbUtils {
 	};
 
 	async marcaPedidoFeitoCouchdb(...args){
-				
-		const res_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0]}`,
-			{
-				method: 'GET',
-				headers:{
-					'Authorization': `Basic ${auth}`
-				},
-			});
-
-		const da__ = await res_.json();
-
-		da__.Itens[args[1]].Item.Status[0] = "Feito"
 		
-		tool.persistence_doc('pedidos', da__, da__._id);
+		const response = await tool.find_doc('pedidos', args[0]);
+		response.Itens[args[1]].Item.Status[0] = "Feito"
+		
+		tool.persistence_doc('pedidos', response, response._id);
 	};
 
 	async inseirItemPedidoFeitoCouchdb(...args){
+		
+		const response = await tool.find_doc('pedidos', args[0].first_id);
 	
-		const res_ = await fetch(`${config.couchdbUrl}/pedidos/${args[0].first_id}`,
-				{
-					method: 'GET',
-					headers:{
-						'Authorization': `Basic ${auth}`
-					},
-				});
-
-		const da__ = await res_.json();
-
 		for(let i$ = 0; i$ < args[0].item.length; i$++){
-			da__.Itens.push(args[0].item[i$])
+			response.Itens.push(args[0].item[i$])
 		};
 
-		tool.persistence_doc('pedidos', da__, da__._id);
+		const return_ =	tool.calculation_call(response);	
+	
+		tool.persistence_doc('pedidos', return_, response._id);
 	};
 
 };

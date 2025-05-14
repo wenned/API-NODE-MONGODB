@@ -29,4 +29,19 @@ export default class toolCouchdb{
 				body: JSON.stringify(doc)
 			});
 	};
+
+	async find_doc(banco, id){
+		
+		const res_ = await fetch(`${config.couchdbUrl}/${banco}/${id}`,
+				{
+					method: 'GET',
+					headers:{
+						'Authorization': `Basic ${auth}`
+					},
+				});
+
+		const da__ = await res_.json();
+		return da__;
+
+	};
 };
