@@ -60,24 +60,16 @@ export default class  CouchdbUtils {
 			switch(args[0]){
 
 				case 0:
-			
-					const response = await fetch(`${config.couchdbUrl}/mesas/${args[1]}`,
-						{
-							method: 'GET',
-							headers:{
-							'Authorization': `Basic ${auth}`
-						},
-					});
+					const response = await tool.find_doc('mesas', args[1]);
 
-					const data = await response.json();
-				
-					data.Estado = args[0];
-					data.Chave = '';
+					response.Estado = args[0];
+					response.Chave = '';
 					
 					tool.persistence_doc('mesas', data, data._id);
 					break
 
 				case 1:
+					
 					const resp = await fetch(`${config.couchdbUrl}/mesas/_find`,
 						{
 							method:'POST',
@@ -96,19 +88,10 @@ export default class  CouchdbUtils {
 					break
 
 				case 2:
-			
-					const respdois = await fetch(`${config.couchdbUrl}/mesas/${args[1]}`,
-						{
-							method: 'GET',
-							headers:{
-							'Authorization': `Basic ${auth}`
-						},
-					});
-
-					const dataDois = await respdois.json();				
-
-					dataDois.Estado = args[0];
-					dataDois.Chave = args[0];
+					const response = await tool.find_doc('mesas', args[1]);
+	
+					response.Estado = args[0];
+					response.Chave = args[0];
 
 					tool.persistence_doc('mesas', dataDois, dataDois._id);	
 					break
@@ -157,7 +140,7 @@ export default class  CouchdbUtils {
 	async inseirItemPedidoFeitoCouchdb(...args){
 		
 		const response = await tool.find_doc('pedidos', args[0].first_id);
-	
+
 		for(let i$ = 0; i$ < args[0].item.length; i$++){
 			response.Itens.push(args[0].item[i$])
 		};
