@@ -26,23 +26,24 @@ class AlteracaoProduct {
 			}	
 
 			const retorno = await CalculoStoque(ItensCal)
-
+				
 			if(retorno === true){
 				await Pedido.updateOne({_id:args.first_id},{'valor_total':valorTotal}) 
-				await AlteraStoque(ItensCal)
-					
+				await AlteraStoque(ItensCal)	
+		
 				for(var iNdex=0; iNdex < ItensCal.length; iNdex++){
 					ItensCal[iNdex]['Item']['Status'][1] =  "true"
 				}
-			
 				for(var Index=0; Index < ItensCal.length; Index++){
 					await Pedido.updateOne({_id:args.first_id},{$push:{Itens:ItensCal[Index]}})
 				}
 				await Pedido.updateOne({_id:args.first_id},{'Status':"Pendente"})
-			}			
+
+			}
+			
 			return ItensCal;
 		}catch(err){
-			return 'ERRO AO INSERIR NOVO ITEM AO PEDIDO' + err;
+			console.error('ERRO AO INSERIR NOVO ITEM AO PEDIDO' + err);
 		};
 	};
 		

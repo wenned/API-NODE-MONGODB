@@ -65,7 +65,7 @@ export default class  CouchdbUtils {
 					response.Estado = args[0];
 					response.Chave = '';
 					
-					tool.persistence_doc('mesas', data, data._id);
+					tool.persistence_doc('mesas', response, response._id);
 					break
 
 				case 1:
@@ -88,12 +88,12 @@ export default class  CouchdbUtils {
 					break
 
 				case 2:
-					const response = await tool.find_doc('mesas', args[1]);
+					const resp_ = await tool.find_doc('mesas', args[1]);
 	
-					response.Estado = args[0];
-					response.Chave = args[0];
+					resp_.Estado = args[0];
+					resp_.Chave = args[0];
 
-					tool.persistence_doc('mesas', dataDois, dataDois._id);	
+					tool.persistence_doc('mesas', resp_, resp_._id);	
 					break
 			}
 
